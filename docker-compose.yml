@@ -1,0 +1,24 @@
+# PostgreSQL local para desenvolvimento (opcional: sem ele, o app usa H2).
+# Suba com:  docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: caixinha-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caixinha
+    ports:
+      # Porta 5434 no host: não conflita com o PostgreSQL do amigo secreto (5433) nem com um instalado no Windows (5432)
+      - "${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data # os dados sobrevivem a "docker compose down"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d caixinha"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -1,0 +1,85 @@
+# CI: testes, ponta a ponta com PostgreSQL real (as migrações Flyway rodam de verdade)
+# e build da imagem Docker. Gratuito em repositórios públicos; em privados usa a cota grátis.
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build e testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: mvnw verify
+        run: ./mvnw -B verify
+
+  smoke:
+    name: Ponta a ponta (PostgreSQL real, modo produção)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: caixinha
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      APP_ENV: production
+      ADMIN_USUARIO: organizador
+      ADMIN_SENHA: senha-do-ci-12345
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/caixinha?sslmode=disable
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Empacotar
+        run: ./mvnw -B -q package -DskipTests
+
+      - name: Smoke test
+        run: |
+          java -jar target/*.jar > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -fs localhost:8080/health && break; sleep 2; done
+          curl -fs localhost:8080/health | jq -e '.database == "up"'
+
+          # Flyway aplicou as migrações e o seed no PostgreSQL
+          export PGPASSWORD=postgres
+          test "$(psql -h localhost -U postgres -d caixinha -tAc 'select count(*) from pessoa')" = 13
+          test "$(psql -h localhost -U postgres -d caixinha -tAc 'select sum(peso) from pessoa')" = 11.50
+
+          # painel sem login: redireciona para /entrar
+          test "$(curl -s -o /dev/null -w '%{redirect_url}' localhost:8080/painel)" = "http://localhost:8080/entrar"
+
+          # login com o token CSRF do formulário
+          CSRF=$(curl -fs -c jar.txt localhost:8080/entrar | grep -o 'name="_csrf" value="[^"]*"' | sed 's/.*value="//;s/"$//')
+          curl -fs -b jar.txt -c jar.txt -o /dev/null \
+            --data-urlencode "username=$ADMIN_USUARIO" --data-urlencode "password=$ADMIN_SENHA" \
+            --data-urlencode "_csrf=$CSRF" localhost:8080/entrar
+          curl -fs -b jar.txt localhost:8080/painel | grep -q "Caixinha da Festa 2027"
+          echo "Smoke test OK"
+      - name: Log da aplicação
+        if: failure()
+        run: cat app.log
+
+  docker:
+    name: Imagem Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: docker build
+        run: docker build -t caixinha:ci .
