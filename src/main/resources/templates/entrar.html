@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Entrar · Caixinha da Festa')}"></head>
+<body class="centralizado">
+<main class="cartao estreito">
+    <h1>🎉 Caixinha da Festa</h1>
+    <p class="sutil">Painel do organizador</p>
+
+    <p class="aviso erro" th:if="${param.erro}" role="alert">Usuário ou senha incorretos.</p>
+    <p class="aviso" th:if="${param.saiu}">Você saiu do painel.</p>
+
+    <form th:action="@{/entrar}" method="post" class="formulario">
+        <label>Usuário
+            <input type="text" name="username" autocomplete="username" required autofocus>
+        </label>
+        <label>Senha
+            <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <label class="opcao">
+            <input type="checkbox" name="lembrar" checked> Manter conectado neste aparelho
+        </label>
+        <button type="submit" class="botao">Entrar</button>
+    </form>
+</main>
+</body>
+</html>

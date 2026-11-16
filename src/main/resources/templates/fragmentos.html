@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="cabeca(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#1f6f5c">
+    <title th:text="${titulo}">Caixinha da Festa</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+<header th:fragment="topo" class="topo">
+    <a class="marca" th:href="@{/painel}">🎉 Caixinha</a>
+    <form th:action="@{/sair}" method="post">
+        <button type="submit" class="botao-link">Sair</button>
+    </form>
+</header>
+</body>
+</html>

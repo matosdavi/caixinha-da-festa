@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Painel · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo}"></header>
+<main class="conteudo">
+    <h1 th:text="${caixinha.nome}">Caixinha da Festa 2027</h1>
+
+    <section class="cartao">
+        <h2>Resumo</h2>
+        <dl class="resumo">
+            <dt>Período dos depósitos</dt>
+            <dd th:text="${caixinha.mesInicio + ' a ' + caixinha.mesFim}">2027-01 a 2027-11</dd>
+            <dt>Pessoas ativas</dt>
+            <dd th:text="${pessoasAtivas}">13</dd>
+            <dt>Data da festa</dt>
+            <dd th:text="${caixinha.dataFesta != null ? #temporals.format(caixinha.dataFesta, 'dd/MM/yyyy') : 'Data em votação'}">Data em votação</dd>
+            <dt>Cota</dt>
+            <dd th:text="${caixinha.cotaBase != null ? 'R$ ' + #numbers.formatDecimal(caixinha.cotaBase, 1, 'POINT', 2, 'COMMA') : 'ainda não fixada'}">ainda não fixada</dd>
+        </dl>
+    </section>
+
+    <section class="cartao vazio">
+        <p>O painel ainda está vazio. Pessoas, links, lançamentos e lembretes chegam nas próximas fases.</p>
+    </section>
+</main>
+</body>
+</html>
