@@ -1,0 +1,58 @@
+package com.natal.caixinha.pessoa;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "pessoa")
+public class Pessoa {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 80)
+    private String nome;
+
+    /** E.164 sem '+', ex.: 5511999998888. */
+    @Column(length = 15)
+    private String telefone;
+
+    /** 1.00 = cota inteira, 0.50 = meia cota, 0.00 = não paga. */
+    @Column(nullable = false, precision = 3, scale = 2)
+    private BigDecimal peso;
+
+    /** Quem recebe o link e paga pela pessoa (nulo = ela mesma). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "responsavel_id")
+    private Pessoa responsavel;
+
+    @Column(name = "data_entrada", nullable = false)
+    private LocalDate dataEntrada;
+
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    @Column(length = 500)
+    private String observacao;
+
+    protected Pessoa() {
+        // exigido pelo JPA
+    }
+
+    public Long getId() { return id; }
+    public String getNome() { return nome; }
+    public String getTelefone() { return telefone; }
+    public BigDecimal getPeso() { return peso; }
+    public Pessoa getResponsavel() { return responsavel; }
+    public LocalDate getDataEntrada() { return dataEntrada; }
+    public boolean isAtivo() { return ativo; }
+    public String getObservacao() { return observacao; }
+
+    /** Pagante = pessoa com peso maior que zero. */
+    public boolean isPagante() {
+        return peso.signum() > 0;
+    }
+}
