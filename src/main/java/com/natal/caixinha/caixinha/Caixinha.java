@@ -19,10 +19,10 @@ public class Caixinha {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(name = "mes_inicio", nullable = false, length = 7, columnDefinition = "char(7)")
+    @Column(name = "mes_inicio", nullable = false, length = 7)
     private YearMonth mesInicio;
 
-    @Column(name = "mes_fim", nullable = false, length = 7, columnDefinition = "char(7)")
+    @Column(name = "mes_fim", nullable = false, length = 7)
     private YearMonth mesFim;
 
     @Column(name = "data_festa")
