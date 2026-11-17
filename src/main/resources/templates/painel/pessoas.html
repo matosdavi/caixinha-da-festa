@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Pessoas · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('pessoas')}"></header>
+<main class="conteudo">
+    <div class="titulo-acao">
+        <h1>Pessoas</h1>
+        <a class="botao" th:href="@{/painel/pessoas/nova}">+ Nova pessoa</a>
+    </div>
+    <p class="sutil">
+        <span th:text="${ativas}">13</span> ativas ·
+        <span th:text="${pagantes}">12</span> pagantes ·
+        soma dos pesos <strong th:text="${somaPesos}">11,5</strong>
+    </p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:if="${semLink > 0}" th:action="@{/painel/pessoas/links}" method="post" class="cartao destaque">
+        <p>
+            <strong th:text="${semLink == 1} ? '1 responsável ainda não tem link.' : ${semLink} + ' responsáveis ainda não têm link.'">11 responsáveis ainda não têm link.</strong>
+            Gere os links para poder enviá-los.
+        </p>
+        <button type="submit" class="botao">Gerar links que faltam</button>
+    </form>
+
+    <ul class="lista-pessoas">
+        <li th:each="p : ${linhas}" th:id="'pessoa-' + ${p.id}" class="cartao pessoa" th:classappend="${!p.ativo} ? 'inativa'">
+            <div class="pessoa-cabecalho">
+                <h2 th:text="${p.nome}">Adulto 1</h2>
+                <a class="botao-secundario" th:href="@{/painel/pessoas/{id}/editar(id=${p.id})}">Editar</a>
+            </div>
+            <p class="etiquetas">
+                <span class="etiqueta" th:text="${p.peso}">Cota inteira</span>
+                <span class="etiqueta alerta" th:unless="${p.ativo}">Inativa</span>
+                <span class="etiqueta" th:if="${p.responsavel}" th:text="'Dependente de ' + ${p.responsavel}">Dependente de Adulto 1</span>
+                <span class="etiqueta" th:unless="${#lists.isEmpty(p.dependentes)}"
+                      th:text="'Responsável por ' + ${#strings.listJoin(p.dependentes, ', ')}">Responsável por Bebê</span>
+            </p>
+            <p class="sutil" th:if="${!#strings.isEmpty(p.telefone)}" th:text="'📱 ' + ${p.telefone}">📱 +55 (11) 99999-8888</p>
+            <p class="sutil" th:if="${p.ativo && p.responsavelProprio && #strings.isEmpty(p.telefone)}">
+                Sem telefone: o WhatsApp vai pedir para escolher o contato.
+            </p>
+            <p class="sutil pequeno" th:if="${p.observacao}" th:text="${p.observacao}">observação</p>
+
+            <div class="link-pessoal" th:if="${p.link}">
+                <label class="rotulo" th:for="'link-' + ${p.id}">Link pessoal</label>
+                <input type="text" readonly th:id="'link-' + ${p.id}" th:value="${p.link}" class="campo-link">
+                <div class="acoes">
+                    <button type="button" class="botao" th:attr="data-copiar=${p.link}">Copiar link</button>
+                    <a class="botao whatsapp" th:href="${p.whatsapp}" target="_blank" rel="noopener noreferrer">Enviar no WhatsApp</a>
+                    <a class="botao-secundario" th:href="${p.link}" target="_blank" rel="noopener noreferrer">Abrir</a>
+                    <form th:action="@{/painel/pessoas/{id}/novo-link(id=${p.id})}" method="post"
+                          data-confirmar="Gerar outro link? O link atual vai parar de funcionar e você vai precisar enviar o novo.">
+                        <button type="submit" class="botao-link">Gerar outro link</button>
+                    </form>
+                </div>
+            </div>
+        </li>
+    </ul>
+</main>
+</body>
+</html>

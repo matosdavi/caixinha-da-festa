@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca(${id == null} ? 'Nova pessoa · Caixinha' : 'Editar pessoa · Caixinha')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('pessoas')}"></header>
+<main class="conteudo">
+    <p><a th:href="@{/painel/pessoas}">← Pessoas</a></p>
+    <h1 th:text="${id == null} ? 'Nova pessoa' : 'Editar ' + ${form.nome}">Nova pessoa</h1>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:action="${id == null} ? @{/painel/pessoas} : @{/painel/pessoas/{id}(id=${id})}" th:object="${form}"
+          method="post" class="cartao formulario">
+        <label>Nome
+            <input type="text" th:field="*{nome}" maxlength="80" required autocomplete="off">
+        </label>
+
+        <label>Telefone (WhatsApp)
+            <input type="tel" th:field="*{telefone}" inputmode="tel" placeholder="(11) 99999-8888" autocomplete="off">
+            <span class="ajuda">Com DDD. Opcional; dependentes não precisam.</span>
+        </label>
+
+        <fieldset>
+            <legend>Peso na divisão</legend>
+            <label class="opcao"><input type="radio" th:field="*{peso}" value="1.00"> 1: cota inteira</label>
+            <label class="opcao"><input type="radio" th:field="*{peso}" value="0.50"> 0,5: meia cota (adolescente)</label>
+            <label class="opcao"><input type="radio" th:field="*{peso}" value="0.00"> 0: não paga (bebê)</label>
+        </fieldset>
+
+        <label>Responsável
+            <select th:field="*{responsavelId}" th:disabled="${temDependentes}">
+                <option value="">Ninguém: a própria pessoa recebe o link e paga</option>
+                <option th:each="r : ${responsaveis}" th:value="${r.id}" th:text="${r.nome}">Adulto 1</option>
+            </select>
+            <span class="ajuda" th:if="${temDependentes}">Esta pessoa é responsável por outras e não pode ser dependente.</span>
+            <span class="ajuda" th:unless="${temDependentes}">Quem recebe o link e paga pela pessoa (ex.: pai ou mãe de um adolescente).</span>
+        </label>
+
+        <label>Data de entrada
+            <input type="date" th:field="*{dataEntrada}">
+        </label>
+
+        <label class="opcao">
+            <input type="checkbox" th:field="*{ativo}"> Ativa (participa da caixinha)
+        </label>
+
+        <label>Observação
+            <textarea th:field="*{observacao}" maxlength="500" rows="2"></textarea>
+        </label>
+
+        <button type="submit" class="botao">Salvar</button>
+    </form>
+
+    <form th:if="${id != null}" th:action="@{/painel/pessoas/{id}/excluir(id=${id})}" method="post" class="zona-perigo"
+          data-confirmar="Excluir esta pessoa? Use só para corrigir cadastro feito por engano.">
+        <button type="submit" class="botao-link perigo">Excluir pessoa</button>
+        <span class="ajuda">Só para corrigir cadastro. Quem já tem lançamentos não pode ser excluído.</span>
+    </form>
+</main>
+</body>
+</html>
