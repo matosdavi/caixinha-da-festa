@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#1f6f5c">
+    <title th:text="${caixinha.nome}">Caixinha da Festa 2027</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+<header class="topo">
+    <span class="marca" th:text="'🎉 ' + ${caixinha.nome}">🎉 Caixinha da Festa 2027</span>
+</header>
+<main class="conteudo pessoal">
+    <h1 class="saudacao" th:text="'Olá, ' + ${nome} + '!'">Olá, Adulto 1!</h1>
+    <p class="sutil" th:if="${#lists.isEmpty(dependentes)}">Esta é a sua página na caixinha.</p>
+    <p class="sutil" th:unless="${#lists.isEmpty(dependentes)}"
+       th:text="'Você + ' + ${#lists.size(dependentes)} + (${#lists.size(dependentes) == 1} ? ' dependente: ' : ' dependentes: ') + ${#strings.listJoin(dependentes, ', ')}">
+        Você + 1 dependente: Bebê
+    </p>
+
+    <section class="cartao aguarde">
+        <p class="icone" aria-hidden="true">🗓️</p>
+        <h2>Os depósitos começam em janeiro de 2027</h2>
+        <p>
+            A partir daí, aqui você vai ver a cota do mês, quanto já guardou,
+            o PIX pronto para copiar e o progresso da família.
+        </p>
+    </section>
+
+    <section class="cartao">
+        <h2>Guarde este link</h2>
+        <p>Ele é só seu e não precisa de senha. Salve nos favoritos ou fixe a conversa no WhatsApp,
+            e não repasse para outras pessoas.</p>
+    </section>
+</main>
+</body>
+</html>
