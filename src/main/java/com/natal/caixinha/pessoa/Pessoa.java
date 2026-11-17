@@ -42,6 +42,12 @@ public class Pessoa {
         // exigido pelo JPA
     }
 
+    public Pessoa(String nome, BigDecimal peso, LocalDate dataEntrada) {
+        this.nome = nome;
+        this.peso = peso;
+        this.dataEntrada = dataEntrada;
+    }
+
     public Long getId() { return id; }
     public String getNome() { return nome; }
     public String getTelefone() { return telefone; }
@@ -51,8 +57,21 @@ public class Pessoa {
     public boolean isAtivo() { return ativo; }
     public String getObservacao() { return observacao; }
 
+    void setNome(String nome) { this.nome = nome; }
+    void setTelefone(String telefone) { this.telefone = telefone; }
+    void setPeso(BigDecimal peso) { this.peso = peso; }
+    void setResponsavel(Pessoa responsavel) { this.responsavel = responsavel; }
+    void setDataEntrada(LocalDate dataEntrada) { this.dataEntrada = dataEntrada; }
+    void setAtivo(boolean ativo) { this.ativo = ativo; }
+    void setObservacao(String observacao) { this.observacao = observacao; }
+
     /** Pagante = pessoa com peso maior que zero. */
     public boolean isPagante() {
         return peso.signum() > 0;
+    }
+
+    /** Responsável = quem recebe o próprio link (não depende de ninguém). */
+    public boolean isResponsavel() {
+        return responsavel == null;
     }
 }
