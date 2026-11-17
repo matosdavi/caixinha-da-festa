@@ -16,7 +16,7 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
 
     boolean existsByResponsavelId(Long responsavelId);
 
-    /** Lançamentos ainda não têm entidade: a consulta vai direto na tabela. */
+    /** Consulta direta na tabela, para o pacote pessoa não depender de lancamento. */
     @Query(value = "select count(*) > 0 from lancamento where pessoa_id = :id", nativeQuery = true)
     boolean temLancamentos(Long id);
 }

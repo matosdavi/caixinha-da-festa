@@ -53,6 +53,16 @@ public class Caixinha {
         // exigido pelo JPA
     }
 
+    /** Fixa a cota base. Depois disso ela não muda mais (seção 3.1). */
+    void fixarCota(BigDecimal cota) {
+        if (cotaBase != null) {
+            throw new IllegalStateException("A cota já foi fixada.");
+        }
+        this.cotaBase = cota;
+    }
+
+    public boolean isCotaFixada() { return cotaBase != null; }
+
     public Long getId() { return id; }
     public String getNome() { return nome; }
     public YearMonth getMesInicio() { return mesInicio; }
