@@ -152,3 +152,32 @@ select:disabled { background: var(--fundo); color: var(--sutil); }
 .pessoal .saudacao { margin-bottom: 0; }
 .aguarde { text-align: center; }
 .aguarde .icone { font-size: 2.5rem; margin: 0; }
+
+/* ---------- Lançamentos ---------- */
+[hidden] { display: none !important; }
+input[type=url] { font: inherit; padding: 12px; border: 1px solid var(--borda); border-radius: 8px; width: 100%; }
+.lado-a-lado { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.extrato { list-style: none; padding: 0; margin: 0; }
+.extrato li { padding: 10px 0; border-top: 1px solid var(--borda); }
+.extrato li:first-child { border-top: 0; }
+.extrato form { margin: 0; }
+.extrato .botao-link { padding: 4px 0; }
+.extrato-linha { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.extrato-linha strong { display: block; }
+.valor { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.valor.entrada { color: var(--verde); }
+.valor.saida { color: var(--erro); }
+.menu { order: 3; flex-basis: 100%; overflow-x: auto; margin: 0 -8px; }
+.menu a { white-space: nowrap; }
+@media (min-width: 640px) { .menu { order: 0; flex-basis: auto; margin: 0; } }
+
+/* ---------- Início ---------- */
+.numero-grande { font-size: 1.75rem; font-weight: 700; margin: 0 0 4px; font-variant-numeric: tabular-nums; }
+.barra { height: 12px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 999px; overflow: hidden; }
+.barra span { display: block; height: 100%; background: var(--verde); }
+.selo { display: inline-block; border-radius: 999px; padding: 0 8px; font-size: .8rem; font-weight: 600; }
+.selo.amarelo { background: #fff4ce; color: #7a5b00; }
+.selo.vermelho { background: var(--erro-fundo); color: var(--erro); }
+.alerta-texto { color: var(--erro); }
+.extrato-linha > div > span { display: block; }
+.extrato-linha > div > span.selo { display: inline-block; }

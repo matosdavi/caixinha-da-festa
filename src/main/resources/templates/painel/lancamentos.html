@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Lançamentos · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('lancamentos')}"></header>
+<main class="conteudo">
+    <h1>Lançamentos</h1>
+    <p class="sutil">Confira o extrato do banco e lance aqui o que entrou e o que saiu.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:action="@{/painel/lancamentos}" th:object="${form}" method="post" class="cartao formulario"
+          id="novo-lancamento" data-lancamento>
+        <h2>Novo lançamento</h2>
+
+        <label>Tipo
+            <select th:field="*{tipo}" data-tipo>
+                <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.rotulo}">Depósito</option>
+            </select>
+        </label>
+
+        <label data-so-para="DEPOSITO DEVOLUCAO CREDITO_ANO_ANTERIOR">Pessoa
+            <select th:field="*{pessoaId}" data-pessoa>
+                <option value="">Escolha…</option>
+                <option th:each="p : ${pessoas}" th:value="${p.id}" th:attr="data-sugestao=${p.sugestao}"
+                        th:text="${p.nome} + ' · ' + ${p.detalhe}">Adulto 1 · falta R$ 92,00</option>
+            </select>
+            <span class="ajuda">No depósito, o valor que falta para a pessoa ficar em dia já é sugerido.</span>
+        </label>
+
+        <label data-so-para="GASTO">Categoria do gasto
+            <select th:field="*{categoria}">
+                <option value="">Escolha…</option>
+                <option th:each="c : ${categorias}" th:value="${c}" th:text="${c.rotulo}">Aluguel</option>
+            </select>
+        </label>
+
+        <div class="lado-a-lado">
+            <label>Valor (R$)
+                <input type="text" th:field="*{valor}" inputmode="decimal" placeholder="92,00" autocomplete="off"
+                       required data-valor>
+            </label>
+            <label>Data
+                <input type="date" th:field="*{data}" required>
+            </label>
+        </div>
+
+        <label>Descrição <span class="ajuda">(opcional)</span>
+            <input type="text" th:field="*{descricao}" maxlength="200" autocomplete="off"
+                   placeholder="ex.: PIX de março">
+        </label>
+
+        <label data-so-para="GASTO">Link do comprovante <span class="ajuda">(opcional)</span>
+            <input type="url" th:field="*{comprovanteUrl}" maxlength="500" placeholder="https://…">
+        </label>
+
+        <button type="submit" class="botao">Lançar</button>
+    </form>
+
+    <section class="cartao">
+        <h2>Extrato da caixinha</h2>
+        <p class="sutil" th:if="${#lists.isEmpty(lancamentos)}">Nenhum lançamento ainda.</p>
+        <ul class="extrato">
+            <li th:each="l : ${lancamentos}">
+                <div class="extrato-linha">
+                    <div>
+                        <strong th:text="${l.pessoa != null} ? ${l.tipo.rotulo} + ' · ' + ${l.pessoa.nome}
+                                : (${l.categoria != null} ? ${l.tipo.rotulo} + ' · ' + ${l.categoria.rotulo} : ${l.tipo.rotulo})">Depósito · Adulto 1</strong>
+                        <span class="sutil pequeno" th:text="${@fmt.data(l.data)}">05/03/2027</span>
+                        <span class="sutil pequeno" th:if="${l.descricao}" th:text="'· ' + ${l.descricao}">· PIX</span>
+                        <a class="pequeno" th:if="${l.comprovanteUrl}" th:href="${l.comprovanteUrl}"
+                           target="_blank" rel="noopener noreferrer">comprovante</a>
+                    </div>
+                    <span class="valor" th:classappend="${l.tipo.entrada} ? 'entrada' : 'saida'"
+                          th:text="(${l.tipo.entrada} ? '+ ' : '− ') + ${@fmt.reais(l.valor)}">+ R$ 92,00</span>
+                </div>
+                <form th:action="@{/painel/lancamentos/{id}/excluir(id=${l.id})}" method="post"
+                      th:attr="data-confirmar='Excluir este lançamento de ' + ${@fmt.reais(l.valor)} + '? O saldo é recalculado.'">
+                    <button type="submit" class="botao-link perigo pequeno">Excluir</button>
+                </form>
+            </li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

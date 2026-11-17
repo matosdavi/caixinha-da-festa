@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Editar item · Caixinha')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('orcamento')}"></header>
+<main class="conteudo">
+    <p><a th:href="@{/painel/orcamento}">← Orçamento</a></p>
+    <h1>Editar item</h1>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:action="@{/painel/orcamento/{id}(id=${id})}" th:object="${form}" method="post" class="cartao formulario">
+        <label>Categoria
+            <select th:field="*{categoria}" required>
+                <option th:each="c : ${categorias}" th:value="${c}" th:text="${c.rotulo}">Aluguel</option>
+            </select>
+        </label>
+        <label>Descrição
+            <input type="text" th:field="*{descricao}" maxlength="200" required autocomplete="off">
+        </label>
+        <div class="lado-a-lado">
+            <label>Valor previsto (R$)
+                <input type="text" th:field="*{valorPrevisto}" inputmode="decimal" required autocomplete="off">
+            </label>
+            <label>Valor real (R$)
+                <input type="text" th:field="*{valorReal}" inputmode="decimal" autocomplete="off">
+            </label>
+        </div>
+        <button type="submit" class="botao">Salvar</button>
+    </form>
+
+    <form th:action="@{/painel/orcamento/{id}/excluir(id=${id})}" method="post" class="zona-perigo"
+          data-confirmar="Tirar este item do orçamento?">
+        <button type="submit" class="botao-link perigo">Excluir item</button>
+    </form>
+</main>
+</body>
+</html>

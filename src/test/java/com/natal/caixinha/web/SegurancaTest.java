@@ -73,7 +73,7 @@ class SegurancaTest {
         mvc.perform(get("/painel").session((org.springframework.mock.web.MockHttpSession) sessao))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Caixinha da Festa 2027")))
-                .andExpect(content().string(containsString("Data em votação")));
+                .andExpect(content().string(containsString("data em votação")));
     }
 
     @Test

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Orçamento · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('orcamento')}"></header>
+<main class="conteudo">
+    <h1>Orçamento</h1>
+    <p class="sutil">A soma dos valores previstos, mais a margem de imprevistos, é a meta. A cota sai dela.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <section class="cartao" th:classappend="${cota.fixada} ? '' : 'destaque'">
+        <h2 th:text="${cota.fixada} ? 'Cota fixada' : 'Cota estimada'">Cota estimada</h2>
+        <p class="numero-grande">
+            <span th:text="${@fmt.reais(cota.cota)}">R$ 92,00</span><span class="sutil pequeno"> por mês (cota inteira)</span>
+        </p>
+        <dl class="resumo">
+            <dt>Orçamento previsto</dt>
+            <dd th:text="${@fmt.reais(cota.somaPrevista)}">R$ 10.400,00</dd>
+            <dt th:text="'Meta (+' + ${@fmt.peso(cota.margem * 100)} + '% de imprevistos)'">Meta (+10% de imprevistos)</dt>
+            <dd th:text="${@fmt.reais(cota.meta)}">R$ 11.440,00</dd>
+            <dt>Soma dos pesos</dt>
+            <dd th:text="${@fmt.peso(cota.somaPesos)} + ' (' + ${cota.pagantes} + ' pagantes)'">11,5 (12 pagantes)</dd>
+            <dt>Meses de depósito</dt>
+            <dd th:text="${cota.meses}">11</dd>
+            <dt>Cota bruta</dt>
+            <dd th:text="${@fmt.reais(cota.cotaBruta)}">R$ 90,43</dd>
+            <dt>Meia cota</dt>
+            <dd th:text="${@fmt.reais(cota.cota / 2)}">R$ 46,00</dd>
+            <dt>Arrecadação por mês</dt>
+            <dd th:text="${@fmt.reais(cota.arrecadacaoMensal)}">R$ 1.058,00</dd>
+            <dt>Total previsto</dt>
+            <dd th:text="${@fmt.reais(cota.totalPrevisto)}">R$ 11.638,00</dd>
+            <th:block th:if="${cota.fixada && cota.cotaEstimada.compareTo(cota.cota) != 0}">
+                <dt>Cota se fosse recalculada hoje</dt>
+                <dd th:text="${@fmt.reais(cota.cotaEstimada)}">R$ 94,00</dd>
+            </th:block>
+        </dl>
+        <p class="ajuda">A cota bruta é arredondada para cima até o próximo número par, para a meia cota também ficar inteira.</p>
+
+        <th:block th:unless="${cota.fixada}">
+            <p class="aviso erro" th:if="${resumo.listaFechada}">
+                A lista fechou em <span th:text="${@fmt.data(resumo.caixinha.dataFechamentoLista)}">31/12/2026</span>:
+                é hora de fixar a cota.
+            </p>
+            <p th:unless="${resumo.listaFechada}" class="pequeno">
+                Esta é uma <strong>estimativa</strong>: muda quando o orçamento ou a lista de pessoas mudam.
+                Fixe a cota no fechamento da lista
+                (<span th:text="${@fmt.data(resumo.caixinha.dataFechamentoLista)}">31/12/2026</span>).
+            </p>
+            <form th:action="@{/painel/orcamento/fixar-cota}" method="post"
+                  th:attr="data-confirmar='Fixar a cota em ' + ${@fmt.reais(cota.cotaEstimada)} + '? Depois disso ela não muda mais, mesmo que o orçamento ou a lista mudem.'">
+                <button type="submit" class="botao" th:disabled="${cota.cotaEstimada.signum() == 0}"
+                        th:text="'Fixar cota em ' + ${@fmt.reais(cota.cotaEstimada)}">Fixar cota em R$ 92,00</button>
+            </form>
+        </th:block>
+        <p th:if="${cota.fixada}" class="pequeno">
+            A cota está fixada e não muda mais. Mudanças no orçamento só alteram a meta.
+        </p>
+    </section>
+
+    <section class="cartao">
+        <h2>Itens</h2>
+        <p class="sutil" th:if="${#lists.isEmpty(itens)}">Nenhum item ainda. Comece pelo aluguel do lugar.</p>
+        <ul class="extrato">
+            <li th:each="i : ${itens}">
+                <div class="extrato-linha">
+                    <div>
+                        <strong th:text="${i.descricao}">Chácara</strong>
+                        <span class="sutil pequeno" th:text="${i.categoria.rotulo}">Aluguel</span>
+                        <span class="sutil pequeno" th:if="${i.valorReal != null}"
+                              th:text="'· real ' + ${@fmt.reais(i.valorReal)}">· real R$ 6.200,00</span>
+                    </div>
+                    <span class="valor" th:text="${@fmt.reais(i.valorPrevisto)}">R$ 6.000,00</span>
+                </div>
+                <a class="pequeno" th:href="@{/painel/orcamento/{id}/editar(id=${i.id})}">Editar</a>
+            </li>
+        </ul>
+    </section>
+
+    <form th:action="@{/painel/orcamento}" th:object="${form}" method="post" class="cartao formulario">
+        <h2>Adicionar item</h2>
+        <label>Categoria
+            <select th:field="*{categoria}" required>
+                <option value="">Escolha…</option>
+                <option th:each="c : ${categorias}" th:value="${c}" th:text="${c.rotulo}">Aluguel</option>
+            </select>
+        </label>
+        <label>Descrição
+            <input type="text" th:field="*{descricao}" maxlength="200" required autocomplete="off"
+                   placeholder="ex.: Aluguel da chácara">
+        </label>
+        <div class="lado-a-lado">
+            <label>Valor previsto (R$)
+                <input type="text" th:field="*{valorPrevisto}" inputmode="decimal" required autocomplete="off">
+            </label>
+            <label>Valor real (R$) <span class="ajuda">(depois)</span>
+                <input type="text" th:field="*{valorReal}" inputmode="decimal" autocomplete="off">
+            </label>
+        </div>
+        <button type="submit" class="botao">Adicionar</button>
+    </form>
+</main>
+</body>
+</html>

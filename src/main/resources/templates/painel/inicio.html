@@ -3,25 +3,105 @@
 <head th:replace="~{fragmentos :: cabeca('Painel · Caixinha da Festa')}"></head>
 <body>
 <header th:replace="~{fragmentos :: topo('inicio')}"></header>
-<main class="conteudo">
-    <h1 th:text="${caixinha.nome}">Caixinha da Festa 2027</h1>
+<main class="conteudo" th:with="c=${resumo.cota}, cx=${resumo.caixinha}">
+    <h1 th:text="${cx.nome}">Caixinha da Festa 2027</h1>
+    <p class="sutil">
+        Hoje: <span th:text="${@fmt.data(resumo.hoje)}">15/03/2027</span> ·
+        cota de <strong th:text="${@fmt.mesAno(resumo.mesAtual)}">março de 2027</strong> ·
+        <span th:text="${resumo.mesesFechados} + ' de ' + ${c.meses} + ' meses fechados'">2 de 11 meses fechados</span> ·
+        festa: <span th:text="${cx.dataFesta != null} ? ${@fmt.data(cx.dataFesta)} : 'data em votação'">data em votação</span>
+    </p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <p class="aviso erro" th:if="${c.cota.signum() == 0}">
+        Ainda não há orçamento, então a cota é R$ 0. <a th:href="@{/painel/orcamento}">Cadastre o orçamento</a>.
+    </p>
+    <p class="aviso erro" th:if="${resumo.listaFechada && !c.fixada && c.cota.signum() > 0}">
+        A lista fechou e a cota ainda não foi fixada. <a th:href="@{/painel/orcamento}">Fixar a cota</a>.
+    </p>
 
     <section class="cartao">
-        <h2>Resumo</h2>
+        <h2>Saldo na conta</h2>
+        <p class="numero-grande" th:text="${@fmt.reais(resumo.saldo)}">R$ 181,50</p>
+        <p class="ajuda">Calculado a partir dos lançamentos. Deve bater com o extrato do banco.</p>
         <dl class="resumo">
-            <dt>Período dos depósitos</dt>
-            <dd th:text="${caixinha.mesInicio + ' a ' + caixinha.mesFim}">2027-01 a 2027-11</dd>
-            <dt>Pessoas ativas</dt>
-            <dd th:text="${pessoasAtivas}">13</dd>
-            <dt>Data da festa</dt>
-            <dd th:text="${caixinha.dataFesta != null ? #temporals.format(caixinha.dataFesta, 'dd/MM/yyyy') : 'Data em votação'}">Data em votação</dd>
-            <dt>Cota</dt>
-            <dd th:text="${caixinha.cotaBase != null ? 'R$ ' + #numbers.formatDecimal(caixinha.cotaBase, 1, 'POINT', 2, 'COMMA') : 'ainda não fixada'}">ainda não fixada</dd>
+            <dt>Guardado pelas pessoas</dt>
+            <dd th:text="${@fmt.reais(resumo.guardadoTotal)}">R$ 230,00</dd>
+            <dt>Rendimentos</dt>
+            <dd th:text="${@fmt.reais(resumo.rendimentos)}">R$ 1,50</dd>
+            <dt>Doações</dt>
+            <dd th:text="${@fmt.reais(resumo.doacoes)}">R$ 0,00</dd>
+            <dt>Gastos</dt>
+            <dd th:text="'− ' + ${@fmt.reais(resumo.gastos)}">− R$ 50,00</dd>
+            <th:block th:if="${resumo.devolucoes.signum() > 0}">
+                <dt>Devoluções</dt>
+                <dd th:text="'− ' + ${@fmt.reais(resumo.devolucoes)}">− R$ 0,00</dd>
+            </th:block>
         </dl>
     </section>
 
-    <section class="cartao vazio">
-        <p>O painel ainda está vazio. Pessoas, links, lançamentos e lembretes chegam nas próximas fases.</p>
+    <section class="cartao">
+        <h2>Progresso</h2>
+        <p>
+            <strong th:text="${@fmt.reais(resumo.arrecadado)}">R$ 231,50</strong> de
+            <span th:text="${@fmt.reais(c.meta)}">R$ 11.440,00</span>
+            (<span th:text="${resumo.percentual} + '%'">2%</span>)
+        </p>
+        <div class="barra" role="progressbar" aria-label="Progresso da meta"
+             th:attr="aria-valuenow=${resumo.percentual}" aria-valuemin="0" aria-valuemax="100">
+            <span th:style="'width:' + ${resumo.percentual > 100 ? 100 : resumo.percentual} + '%'"></span>
+        </div>
+        <p>
+            <strong th:text="${resumo.emDia} + ' de ' + ${resumo.pagantes}">1 de 12</strong> pagantes estão em dia
+        </p>
+        <p class="pequeno">
+            Cota <span th:text="${c.fixada} ? 'fixada' : 'estimada'">estimada</span>:
+            <strong th:text="${@fmt.reais(c.cota)}">R$ 92,00</strong> por mês ·
+            <a th:href="@{/painel/orcamento}">orçamento</a>
+        </p>
+    </section>
+
+    <section class="cartao" th:unless="${#lists.isEmpty(resumo.comDestaque())}">
+        <h2>Atrasos</h2>
+        <ul class="extrato">
+            <li th:each="s : ${resumo.comDestaque()}" th:with="st=${s.situacao}">
+                <div class="extrato-linha">
+                    <div>
+                        <strong th:text="${s.pessoa.nome}">Adulto 2</strong>
+                        <span class="selo" th:classappend="${st.destaque.name() == 'AMARELO'} ? 'amarelo' : 'vermelho'"
+                              th:text="${st.destaque.name() == 'AMARELO'} ? '2 meses de atraso'
+                                : (${st.destaque.name() == 'CONVERSAR_NO_PRIVADO'} ? 'conversar no privado'
+                                : 'quitar até ' + ${@fmt.mes(cx.mesFim)})">2 meses de atraso</span>
+                        <span class="sutil pequeno" th:text="${st.mesesDeAtraso} + (${st.mesesDeAtraso == 1} ? ' mês' : ' meses') + ' em atraso'">2 meses em atraso</span>
+                    </div>
+                    <span class="valor saida" th:text="${@fmt.reais(st.valorParaFicarEmDia)}">R$ 276,00</span>
+                </div>
+            </li>
+        </ul>
+        <p class="ajuda">O valor é o que falta para ficar em dia, contando a cota deste mês.</p>
+    </section>
+
+    <section class="cartao">
+        <h2>Situação de cada pagante</h2>
+        <ul class="extrato">
+            <li th:each="s : ${resumo.situacoes}" th:with="st=${s.situacao}">
+                <div class="extrato-linha">
+                    <div>
+                        <strong th:text="${s.pessoa.nome}">Adulto 1</strong>
+                        <span class="sutil pequeno"
+                              th:text="'guardou ' + ${@fmt.reais(st.guardado)} + ' · cota ' + ${@fmt.reais(st.cota)}">guardou R$ 184,00 · cota R$ 92,00</span>
+                        <span class="pequeno" th:if="${st.cotaDoMesPaga}">✅ <span th:text="${@fmt.mes(st.mesAtual)}">março</span> pago</span>
+                        <span class="pequeno" th:if="${!st.cotaDoMesPaga && st.emDia}"
+                              th:text="${@fmt.mes(st.mesAtual)} + ': falta ' + ${@fmt.reais(st.faltaNoMes)}">março: falta R$ 92,00</span>
+                        <span class="pequeno alerta-texto" th:unless="${st.emDia}"
+                              th:text="${st.mesesDeAtraso} + (${st.mesesDeAtraso == 1} ? ' mês' : ' meses') + ' em atraso · para ficar em dia ' + ${@fmt.reais(st.valorParaFicarEmDia)}">2 meses em atraso</span>
+                    </div>
+                    <a class="botao-secundario pequeno" th:if="${st.valorParaFicarEmDia.signum() > 0}"
+                       th:href="@{/painel/lancamentos(pessoa=${s.pessoa.id}, valor=${@fmt.campo(st.valorParaFicarEmDia)})}">Lançar</a>
+                </div>
+            </li>
+        </ul>
     </section>
 </main>
 </body>

@@ -25,3 +25,32 @@ document.addEventListener('submit', (evento) => {
         evento.preventDefault();
     }
 });
+
+// Formulário de lançamento: mostra só os campos do tipo escolhido e sugere o valor do depósito.
+document.querySelectorAll('[data-lancamento]').forEach((form) => {
+    const tipo = form.querySelector('[data-tipo]');
+    const pessoa = form.querySelector('[data-pessoa]');
+    const valor = form.querySelector('[data-valor]');
+    let sugerido = '';
+
+    const atualizar = () => {
+        form.querySelectorAll('[data-so-para]').forEach((campo) => {
+            const visivel = campo.dataset.soPara.split(' ').includes(tipo.value);
+            campo.hidden = !visivel;
+            campo.querySelectorAll('select, input').forEach((c) => { c.disabled = !visivel; });
+        });
+    };
+
+    pessoa.addEventListener('change', () => {
+        const opcao = pessoa.selectedOptions[0];
+        const sugestao = opcao ? opcao.dataset.sugestao || '' : '';
+        // só troca o valor se ele estiver vazio ou ainda for a sugestão anterior
+        if (tipo.value === 'DEPOSITO' && (valor.value === '' || valor.value === sugerido)) {
+            valor.value = sugestao;
+            sugerido = sugestao;
+        }
+    });
+
+    tipo.addEventListener('change', atualizar);
+    atualizar();
+});

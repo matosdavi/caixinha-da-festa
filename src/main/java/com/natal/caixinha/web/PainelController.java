@@ -1,21 +1,18 @@
 package com.natal.caixinha.web;
 
-import com.natal.caixinha.caixinha.CaixinhaRepository;
-import com.natal.caixinha.pessoa.PessoaRepository;
+import com.natal.caixinha.caixinha.CaixinhaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** Painel do organizador (protegido por login). Por enquanto, só o início. */
+/** Painel do organizador (protegido por login): início com saldo, progresso e atrasos. */
 @Controller
 public class PainelController {
 
-    private final CaixinhaRepository caixinhas;
-    private final PessoaRepository pessoas;
+    private final CaixinhaService caixinha;
 
-    public PainelController(CaixinhaRepository caixinhas, PessoaRepository pessoas) {
-        this.caixinhas = caixinhas;
-        this.pessoas = pessoas;
+    public PainelController(CaixinhaService caixinha) {
+        this.caixinha = caixinha;
     }
 
     @GetMapping("/")
@@ -30,8 +27,7 @@ public class PainelController {
 
     @GetMapping("/painel")
     public String inicio(Model model) {
-        model.addAttribute("caixinha", caixinhas.configuracao());
-        model.addAttribute("pessoasAtivas", pessoas.findByAtivoTrueOrderByNomeAsc().size());
+        model.addAttribute("resumo", caixinha.resumo());
         return "painel/inicio";
     }
 }

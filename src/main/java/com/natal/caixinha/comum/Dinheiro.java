@@ -13,8 +13,9 @@ public final class Dinheiro {
     }
 
     /**
-     * Lê "92", "92,50", "1.058,00", "1058.00" ou "R$ 92". Vazio vira {@code null}.
-     * Com vírgula, o ponto é separador de milhar; sem vírgula, o ponto é decimal.
+     * Lê "92", "92,50", "1.058,00", "6.000", "1058.00" ou "R$ 92". Vazio vira {@code null}.
+     * Com vírgula, o ponto é separador de milhar. Sem vírgula, o ponto também é de milhar quando
+     * vem seguido de grupos de 3 dígitos ("6.000" = seis mil), e decimal nos outros casos ("92.5").
      */
     public static BigDecimal ler(String texto, String campo) {
         if (texto == null || texto.isBlank()) {
@@ -23,6 +24,8 @@ public final class Dinheiro {
         String limpo = texto.replace("R$", "").replaceAll("\\s", "");
         if (limpo.contains(",")) {
             limpo = limpo.replace(".", "").replace(',', '.');
+        } else if (limpo.matches("\\d{1,3}(\\.\\d{3})+")) {
+            limpo = limpo.replace(".", "");
         }
         try {
             return new BigDecimal(limpo);
