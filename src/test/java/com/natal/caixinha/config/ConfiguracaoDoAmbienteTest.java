@@ -36,6 +36,20 @@ class ConfiguracaoDoAmbienteTest {
     }
 
     @Test
+    void cookieDeSessaoSeguroSoEmProducao() {
+        var dev = new MockEnvironment();
+        config.postProcessEnvironment(dev, new SpringApplication());
+        assertEquals("false", dev.getProperty("server.servlet.session.cookie.secure"));
+
+        var prod = new MockEnvironment()
+                .withProperty("APP_ENV", "production")
+                .withProperty("ADMIN_SENHA", "senha-com-12-ou-mais")
+                .withProperty("DATABASE_URL", "postgresql://u:s@host/db?sslmode=require");
+        config.postProcessEnvironment(prod, new SpringApplication());
+        assertEquals("true", prod.getProperty("server.servlet.session.cookie.secure"));
+    }
+
+    @Test
     void producaoExigeBancoESenha() {
         var env = new MockEnvironment().withProperty("APP_ENV", "production").withProperty("ADMIN_SENHA", "curta-11ch");
         var erro = assertThrows(IllegalStateException.class,

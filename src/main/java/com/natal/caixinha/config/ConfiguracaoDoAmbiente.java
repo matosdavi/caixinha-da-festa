@@ -59,7 +59,10 @@ public class ConfiguracaoDoAmbiente implements EnvironmentPostProcessor {
         env.getPropertySources().addLast(new MapPropertySource("caixinha-datasource", Map.of(
                 "spring.datasource.url", conexao.url(),
                 "spring.datasource.username", conexao.usuario(),
-                "spring.datasource.password", conexao.senha())));
+                "spring.datasource.password", conexao.senha(),
+                // Em produção o acesso é sempre HTTPS (o Render termina o TLS e repassa como HTTP):
+                // o cookie de sessão só pode viajar por HTTPS. Em desenvolvimento (http://localhost), não.
+                "server.servlet.session.cookie.secure", String.valueOf(producao))));
     }
 
     /** postgres://usuario:senha@host:porta/banco?params  →  jdbc:postgresql://host:porta/banco?params */

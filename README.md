@@ -12,7 +12,7 @@ Java/Spring Boot, Render e Neon.
 
 | Fase | Entrega | Situação |
 |---|---|---|
-| 1 | Projeto, Flyway, seed, deploy, login do organizador | ✅ código pronto, deploy pendente |
+| 1 | Projeto, Flyway, seed, deploy, login do organizador | ✅ no ar em https://caixinha-da-festa.onrender.com |
 | 2 | Pessoas, responsáveis, links | — |
 | 3 | Lançamentos e cálculos (cota, situação, atrasos) | — |
 | 4 | Página pessoal completa, PIX copia e cola, .ics | — |
