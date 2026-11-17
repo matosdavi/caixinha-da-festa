@@ -14,7 +14,7 @@ Java/Spring Boot, Render e Neon.
 |---|---|---|
 | 1 | Projeto, Flyway, seed, deploy, login do organizador | ✅ no ar em https://caixinha-da-festa.onrender.com |
 | 2 | Pessoas, responsáveis, links | ✅ no ar |
-| 3 | Lançamentos, cálculos (cota, situação, atrasos) e orçamento com "Fixar cota" | ✅ código pronto |
+| 3 | Lançamentos, cálculos (cota, situação, atrasos) e orçamento com "Fixar cota" | ✅ no ar |
 | 4 | Página pessoal completa, PIX copia e cola, .ics | — |
 | 5 | Lembretes e WhatsApp | — |
 | 6 | Cronograma e verificação do sinal (o orçamento veio na fase 3) | — |
