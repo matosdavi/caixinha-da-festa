@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caixinha da Festa 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fundo: #0F2A23;      /* verde-mata noturno */
+  --superficie: #173A31;
+  --linha: #2C5A4D;
+  --texto: #EEF3EF;
+  --sutil: #A9BDB4;
+  --talao: #FFE08A;      /* papel de carnê */
+  --talao-borda: #E9C24E;
+  --talao-texto: #2A2410;
+  --tinta: #3730A3;      /* tinta de carimbo */
+  --lilas: #2E2A6E;
+  --lilas-texto: #D6D2FF;
+  --mata: #0F2A23;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--fundo); color: var(--texto);
+  font-family: "Archivo", system-ui, sans-serif; font-size: 17px; line-height: 1.5;
+  font-variation-settings: "wdth" 100;
+}
+.num { font-variant-numeric: tabular-nums; }
+.topo { padding: 14px 16px; background: #0A1F19; color: var(--talao); font-weight: 700;
+  font-variation-settings: "wdth" 75; font-size: 1.05rem; letter-spacing: .01em;
+  border-bottom: 1px solid var(--linha); }
+main { max-width: 480px; margin: 0 auto; padding: 0 16px 48px; }
+
+.saudacao { font-size: 2rem; line-height: 1.1; margin: 20px 0 2px; font-weight: 800;
+  font-variation-settings: "wdth" 80; }
+.quem { margin: 0 0 20px; color: var(--sutil); }
+
+/* O talão do mês: papel amarelo aceso sobre o fundo escuro */
+.talao { background: var(--talao); color: var(--talao-texto); border-radius: 6px; position: relative; }
+.talao .canhoto { padding: 10px 16px; display: flex; justify-content: space-between;
+  font-size: .9rem; color: #6B5414; border-bottom: 2px dashed var(--talao-borda); }
+.talao .corpo { padding: 16px 16px 18px; }
+.talao .rotulo { margin: 0; font-size: 1rem; }
+.talao .valor { margin: 0; font-size: 3.2rem; line-height: 1; font-weight: 800;
+  font-variation-settings: "wdth" 70; letter-spacing: -.01em; }
+.talao .estado { margin: 6px 0 16px; color: #6B5414; }
+.botao { display: block; width: 100%; padding: 14px; border: 0; border-radius: 6px;
+  background: var(--mata); color: var(--talao); font: inherit; font-weight: 700; font-size: 1.05rem; }
+.botao:focus-visible, .link:focus-visible { outline: 3px solid var(--tinta); outline-offset: 2px; }
+.link { background: none; border: 0; padding: 10px 0 0; font: inherit; color: var(--talao-texto);
+  text-decoration: underline; text-underline-offset: 3px; }
+
+/* O carnê: um talão por mês, carimbado quando pago */
+h2 { font-size: 1.15rem; margin: 32px 0 4px; font-variation-settings: "wdth" 85; }
+.dica { margin: 0 0 12px; color: var(--sutil); font-size: .95rem; }
+.carne { list-style: none; margin: 0; padding: 0; display: grid;
+  grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.carne li { position: relative; aspect-ratio: 3 / 4; background: var(--superficie);
+  border: 1px solid var(--linha); border-top: 2px dashed var(--linha); border-radius: 4px;
+  padding: 6px 7px; display: flex; flex-direction: column; justify-content: space-between;
+  font-size: .85rem; overflow: hidden; }
+.carne .mes { font-weight: 700; font-variation-settings: "wdth" 80; }
+.carne .v { color: var(--sutil); }
+.carne li.paga { background: var(--talao); color: var(--talao-texto); border-color: var(--talao-borda); }
+.carne li.paga .v { color: #6B5414; }
+.carne li.atual { border: 2px solid var(--talao); border-top-style: dashed; }
+.carne li.futura .mes, .carne li.futura .v { color: #6F8A80; }
+.carimbo { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%) rotate(-14deg);
+  border: 2.5px solid var(--tinta); color: var(--tinta); border-radius: 4px; padding: 1px 6px;
+  font-weight: 800; font-variation-settings: "wdth" 62; font-size: 1.15rem; letter-spacing: .06em;
+  opacity: .9; line-height: 1.15; text-align: center; mix-blend-mode: multiply; }
+.carimbo small { display: block; font-size: .62rem; letter-spacing: 0; font-weight: 700; }
+.carne li:nth-child(2) .carimbo { transform: translate(-50%, -50%) rotate(-6deg); }
+
+/* Família */
+.familia { background: var(--superficie); border: 1px solid var(--linha); border-radius: 6px; padding: 16px; }
+.familia .grande { font-size: 1.6rem; font-weight: 800; font-variation-settings: "wdth" 75; margin: 0; color: var(--talao); }
+.barra { height: 12px; border-radius: 6px; background: var(--linha); overflow: hidden; margin: 10px 0 8px; }
+.barra span { display: block; height: 100%; width: 24%; background: var(--talao); }
+.familia p { margin: 0; }
+
+.lembrete { display: flex; gap: 12px; align-items: center; margin-top: 12px; padding: 14px 16px;
+  border-radius: 6px; background: var(--lilas); color: var(--lilas-texto);
+  text-decoration: none; font-weight: 600; }
+
+.extrato { list-style: none; padding: 0; margin: 0; }
+.extrato li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--linha); }
+.extrato .d { color: var(--sutil); font-size: .9rem; }
+
+/* Papel: grão + pautas, e a borda serrilhada de notinha embaixo */
+.papel {
+  background-color: var(--talao);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.35'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(to bottom, transparent 0 25px, rgba(107, 84, 20, .17) 25px 26px);
+}
+.talao { border-radius: 6px 6px 0 0; margin-bottom: 10px; }
+.talao::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -9px; height: 9px;
+  background:
+    linear-gradient(135deg, var(--talao) 6px, transparent 0) 0 0 / 12px 9px repeat-x,
+    linear-gradient(-135deg, var(--talao) 6px, transparent 0) 0 0 / 12px 9px repeat-x;
+}
+.talao .corpo { line-height: 26px; }
+
+/* Cada mês pago é uma folhinha destacada do bloco: pautas, grão, picote em cima e serrilha embaixo */
+.carne li.paga { border: 0; border-radius: 0; padding-bottom: 12px;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.35'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(to bottom, transparent 0 15px, rgba(107, 84, 20, .2) 15px 16px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+.carne li.paga::before {
+  content: ""; position: absolute; top: 3px; left: 4px; right: 4px; height: 0;
+  border-top: 2px dotted rgba(107, 84, 20, .55); }
+.carne li.paga::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+  background:
+    linear-gradient(45deg, var(--fundo) 3px, transparent 0) 0 100% / 8px 6px repeat-x,
+    linear-gradient(-45deg, var(--fundo) 3px, transparent 0) 0 100% / 8px 6px repeat-x; }
+.carne li.paga:nth-child(odd) { transform: rotate(-.8deg); }
+.carne li.paga:nth-child(even) { transform: rotate(.6deg); }
+
+/* ---- Revisão de acessibilidade (pessoas mais velhas) ---- */
+html { font-size: 106.25%; }            /* 17px, mas respeita o tamanho de fonte do celular */
+body { font-size: 1rem; }
+.talao .canhoto { font-size: 1rem; }
+.dica, .extrato .d { font-size: 1rem; }
+.carne { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.carne li { aspect-ratio: auto; min-height: 128px; font-size: 1rem; }
+.carne li .carimbo { top: 50%; }
+.carne li.paga .v { position: relative; z-index: 1; }
+.carne .mes { font-size: 1.05rem; }
+.carne li.futura .mes, .carne li.futura .v { color: #9DB5AB; }   /* contraste 4,6 */
+.carne li.futura { border-style: solid; }
+.carimbo { font-size: 1.25rem; top: 47% !important; }
+.carimbo small { font-size: .8rem; }
+.recebedor { margin: 0 0 14px; font-size: 1rem; color: #4A3B0C; }
+.recebedor strong { color: var(--talao-texto); }
+.botao.secundario { margin-top: 10px; background: transparent; color: var(--talao-texto);
+  border: 2px solid var(--talao-texto); }
+.passos { margin: 14px 0 0; padding: 12px 14px 12px 34px; background: rgba(255,255,255,.45);
+  border-radius: 6px; line-height: 1.45; }
+.passos li + li { margin-top: 4px; }
+.lembrete { flex-direction: column; align-items: flex-start; gap: 2px; }
+.lembrete small { font-weight: 400; font-size: 1rem; }
+.quem-organiza { color: var(--sutil); margin: 32px 0 0; }
+
+/* ---- Versão clara: usada quando o celular está no modo claro ---- */
+@media (prefers-color-scheme: light) {
+  :root {
+    --fundo: #E4EFE9; --superficie: #FFFFFF; --linha: #C3D0C9;
+    --texto: #17201C; --sutil: #4F5E58;
+    --lilas: #E3E1FA; --lilas-texto: #2E2A8A;
+    --mata: #1F5E4E;
+  }
+  .topo { background: var(--mata); border-bottom: 0; }
+  .familia { background: var(--mata); border: 0; color: #fff; }
+  .familia .grande { color: var(--talao); }
+  .barra { background: rgba(255, 255, 255, .25); }
+  .carne li.atual { border-color: var(--mata); }
+  .carne li.futura .mes, .carne li.futura .v { color: #5F6F68; }
+  .carne li.paga { box-shadow: 0 2px 0 rgba(0, 0, 0, .12); }
+  .talao { box-shadow: 0 1px 0 rgba(0, 0, 0, .08); }
+}
+</style>
+</head>
+<body>
+<div class="topo">Caixinha da Festa 2027</div>
+<main>
+  <h1 class="saudacao">Oi, Ana!</h1>
+  <p class="quem">Esta página é sua e do Theo.</p>
+
+  <section class="talao papel" aria-label="Cota deste mês">
+    <div class="canhoto"><span>Mês 3 de 11</span><span>março de 2027</span></div>
+    <div class="corpo">
+      <p class="rotulo">Cota de março</p>
+      <p class="valor num">R$ 138,00</p>
+      <p class="estado">Ainda não recebemos. É R$&nbsp;92 da Ana e R$&nbsp;46 do Theo (meia cota).</p>
+      <p class="recebedor">O PIX vai para <strong>FULANO DE TAL</strong>. Confira esse nome no seu banco antes de pagar.</p>
+      <button class="botao">Copiar PIX de R$ 138,00</button>
+      <ol class="passos">
+        <li>Toque em <strong>Copiar PIX</strong>.</li>
+        <li>Abra o app do seu banco e vá em <strong>PIX</strong> › <strong>Pix Copia e Cola</strong>.</li>
+        <li>Cole e confirme. O valor já vem preenchido.</li>
+      </ol>
+      <button class="botao secundario">Pagar pelo QR Code</button>
+    </div>
+  </section>
+
+  <h2>Seu carnê</h2>
+  <p class="dica">Cada mês pago ganha um carimbo de PAGO. O mês com a borda em destaque é o de agora.</p>
+  <ol class="carne num">
+    <li class="paga papel" aria-label="janeiro: pago em 08/01"><span class="mes">janeiro</span><span class="v">R$ 138</span><span class="carimbo">PAGO<small>08/01</small></span></li>
+    <li class="paga papel" aria-label="fevereiro: pago em 11/02"><span class="mes">fevereiro</span><span class="v">R$ 138</span><span class="carimbo">PAGO<small>11/02</small></span></li>
+    <li class="atual"><span class="mes">março</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">abril</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">maio</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">junho</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">julho</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">agosto</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">setembro</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">outubro</span><span class="v">R$ 138</span></li>
+    <li class="futura"><span class="mes">novembro</span><span class="v">R$ 138</span></li>
+  </ol>
+
+  <h2>A família toda</h2>
+  <div class="familia">
+    <p class="grande num">R$ 2.760 guardados</p>
+    <div class="barra" role="img" aria-label="24% da meta"><span></span></div>
+    <p class="num">24% da meta de R$ 11.638. 10 de 12 pagantes estão em dia.</p>
+  </div>
+
+  <a class="lembrete" href="#"><span>📅 Pôr lembrete na agenda do celular</span><small>Todo dia 1º, às 9h, o celular avisa a hora de depositar.</small></a>
+
+  <h2>Seus depósitos</h2>
+  <ul class="extrato num">
+    <li><span>Ana<br><span class="d">11/02</span></span><span>R$ 92,00</span></li>
+    <li><span>Theo<br><span class="d">11/02</span></span><span>R$ 46,00</span></li>
+    <li><span>Ana<br><span class="d">08/01</span></span><span>R$ 92,00</span></li>
+    <li><span>Theo<br><span class="d">08/01</span></span><span>R$ 46,00</span></li>
+  </ul>
+  <p class="quem-organiza">Alguma dúvida? Fale com quem organiza a caixinha no WhatsApp.</p>
+</main>
+</body>
+</html>
