@@ -46,6 +46,9 @@ public final class LembreteIcs {
         linha(ics, "RRULE:FREQ=MONTHLY;COUNT=" + d.meses());
         linha(ics, "SUMMARY:" + escapar(d.resumo()));
         linha(ics, "DESCRIPTION:" + escapar(d.link()));
+        // é só um lembrete: aparece como "livre" e não bloqueia o dia (o Outlook lê a linha X-MICROSOFT)
+        linha(ics, "TRANSP:TRANSPARENT");
+        linha(ics, "X-MICROSOFT-CDO-BUSYSTATUS:FREE");
         linha(ics, "BEGIN:VALARM");
         linha(ics, "ACTION:DISPLAY");
         linha(ics, "DESCRIPTION:" + escapar(d.resumo()));

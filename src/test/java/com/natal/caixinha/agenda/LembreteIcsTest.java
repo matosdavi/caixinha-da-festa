@@ -40,6 +40,14 @@ class LembreteIcsTest {
     }
 
     @Test
+    void lembreteApareceComoLivreNaAgenda() {
+        // é só um lembrete: não deve bloquear o dia de quem compartilha a agenda
+        String ics = LembreteIcs.gerar(dados(YearMonth.of(2027, 1), 11, "x", "https://x/c/abc"));
+        assertTrue(ics.contains("TRANSP:TRANSPARENT\r\n"), ics);
+        assertTrue(ics.contains("X-MICROSOFT-CDO-BUSYSTATUS:FREE\r\n"), ics);
+    }
+
+    @Test
     void comecaNoMesDeEntrada() {
         String ics = LembreteIcs.gerar(dados(YearMonth.of(2027, 4), 8, "x", "l"));
         assertTrue(ics.contains("DTSTART;VALUE=DATE:20270401\r\n"));
