@@ -38,7 +38,7 @@
 
 ---
 
-### Tarefa 1: CRC16 e gerador do BR Code
+### Task 1: CRC16 e gerador do BR Code
 
 **Arquivos:**
 - Criar: `src/main/java/com/natal/caixinha/pix/Crc16.java`
@@ -95,7 +95,7 @@
 - [ ] **Passo 4: rodar e ver passar.** Todos os testes da classe devem passar.
 - [ ] **Passo 5: commitar** com a mensagem "PIX: gerador do BR Code com CRC16 (testes)".
 
-### Tarefa 2: validar e normalizar a chave PIX
+### Task 2: validar e normalizar a chave PIX
 
 **Arquivos:**
 - Criar: `src/main/java/com/natal/caixinha/pix/ChavePix.java`
@@ -121,7 +121,7 @@
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "PIX: validação da chave por tipo".
 
-### Tarefa 3: QR Code em SVG
+### Task 3: QR Code em SVG
 
 **Arquivos:**
 - Modificar: `pom.xml`, adicionando `com.google.zxing:core:3.5.3`, só o core.
@@ -136,7 +136,7 @@
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "PIX: QR Code em SVG gerado no servidor".
 
-### Tarefa 4: arquivo de lembrete `.ics`
+### Task 4: arquivo de lembrete `.ics`
 
 **Arquivos:**
 - Criar: `src/main/java/com/natal/caixinha/agenda/LembreteIcs.java`
@@ -165,7 +165,7 @@ O texto gerado tem, nesta ordem:
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "Agenda: gerador do lembrete .ics (testes)".
 
-### Tarefa 5: regra do carnê
+### Task 5: regra do carnê
 
 **Arquivos:**
 - Criar: `src/main/java/com/natal/caixinha/caixinha/Carne.java`
@@ -198,7 +198,7 @@ Regras, para o talão *k* (1 até o total de meses), com `g` = soma dos moviment
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "Carnê: talões por mês com carimbo e data (testes)".
 
-### Tarefa 6: divisão do pagamento da família
+### Task 6: divisão do pagamento da família
 
 **Arquivos:**
 - Criar: `src/main/java/com/natal/caixinha/caixinha/DivisaoFamilia.java`
@@ -226,7 +226,7 @@ Regra: seja `s` a soma de `paraFicarEmDia`.
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "Pagamento da família: regra de divisão (testes)".
 
-### Tarefa 7: FamiliaService (a família pronta para a página)
+### Task 7: FamiliaService (a família pronta para a página)
 
 **Arquivos:**
 - Modificar: `src/main/java/com/natal/caixinha/lancamento/LancamentoRepository.java`
@@ -260,7 +260,7 @@ Regras:
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "Família: situação, carnê e extrato para a página pessoal".
 
-### Tarefa 8: Pagamento da família no painel
+### Task 8: Pagamento da família no painel
 
 **Arquivos:**
 - Modificar: `src/main/java/com/natal/caixinha/lancamento/LancamentoService.java`
@@ -294,7 +294,7 @@ Regras:
 - [ ] Passo 4: rodar a suíte inteira e ver passar.
 - [ ] Passo 5: commitar com a mensagem "Painel: pagamento da família vira um depósito por pessoa".
 
-### Tarefa 9: Configurações do PIX
+### Task 9: Configurações do PIX
 
 **Arquivos:**
 - Modificar: `src/main/java/com/natal/caixinha/caixinha/Caixinha.java`, com o método package-private `configurarPix(String chave, String nome, String cidade)`
@@ -323,7 +323,7 @@ Regras:
 - [ ] Passo 4: rodar e ver passar.
 - [ ] Passo 5: commitar com a mensagem "Painel: configurações do PIX com PIX de teste de R$ 1,00".
 
-### Tarefa 10: identidade visual (fonte, cores e tema que segue o celular)
+### Task 10: identidade visual (fonte, cores e tema que segue o celular)
 
 **Arquivos:**
 - Criar: `src/main/resources/static/fontes/archivo-latin-wdth-normal.woff2` e `src/main/resources/static/fontes/OFL.txt`
@@ -349,7 +349,7 @@ Regras:
 - [ ] **Passo 5: verificar no navegador.** Use `preview_start` com `caixinha-demo` (pare o preview antes do `./mvnw package`). Abra o login, o Início, Lançamentos, Orçamento e Pessoas em 375px, nos temas escuro e claro (`resize_window` com `colorScheme`). Confira que nada fica ilegível e que não há rolagem horizontal.
 - [ ] **Passo 6: commitar** com a mensagem "Identidade visual: Archivo, verde-mata e tema que segue o celular".
 
-### Tarefa 11: página pessoal completa e rota do `.ics`
+### Task 11: página pessoal completa e rota do `.ics`
 
 **Arquivos:**
 - Modificar: `src/main/java/com/natal/caixinha/web/PaginaPessoalController.java`
@@ -394,7 +394,7 @@ Os textos exatos estão na seção "A página `/c/{token}`" da spec: saudação,
   - tire um screenshot de cada tema.
 - [ ] Passo 6: commitar com a mensagem "Página pessoal: carnê, PIX da família, QR Code e lembrete .ics".
 
-### Tarefa 12: fechamento
+### Task 12: fechamento
 
 **Arquivos:** `README.md` (tabela Estado, Fase 4 "pronta, falta teste no banco") e a memória `caixinha-da-festa.md`.
 
