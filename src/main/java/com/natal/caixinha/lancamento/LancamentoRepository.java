@@ -22,6 +22,13 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
     @Query("select l.pessoa.id, l.tipo, sum(l.valor) from Lancamento l where l.pessoa is not null group by l.pessoa.id, l.tipo")
     List<Object[]> totaisPorPessoa();
 
+    /** Lançamentos que mexem no guardado (depósito, crédito, devolução) dessas pessoas, do mais antigo ao mais novo. */
+    @Query("select l from Lancamento l join fetch l.pessoa where l.pessoa.id in :ids and l.tipo in ("
+            + "com.natal.caixinha.lancamento.TipoLancamento.DEPOSITO, "
+            + "com.natal.caixinha.lancamento.TipoLancamento.CREDITO_ANO_ANTERIOR, "
+            + "com.natal.caixinha.lancamento.TipoLancamento.DEVOLUCAO) order by l.data asc, l.id asc")
+    List<Lancamento> movimentosDe(java.util.Collection<Long> ids);
+
     @Query("select coalesce(sum(l.valor), 0) from Lancamento l where l.pessoa.id = :pessoaId and l.tipo = :tipo")
     BigDecimal somaDaPessoa(Long pessoaId, TipoLancamento tipo);
 }
