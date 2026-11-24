@@ -9,33 +9,123 @@
     <meta name="color-scheme" content="light dark">
     <title th:text="${caixinha.nome}">Caixinha da Festa 2027</title>
     <link rel="stylesheet" th:href="@{/css/estilo.css}">
+    <link rel="stylesheet" th:href="@{/css/pessoal.css}">
+    <script th:src="@{/js/painel.js}" defer></script>
 </head>
-<body>
-<header class="topo">
-    <span class="marca" th:text="'🎉 ' + ${caixinha.nome}">🎉 Caixinha da Festa 2027</span>
-</header>
-<main class="conteudo pessoal">
-    <h1 class="saudacao" th:text="'Olá, ' + ${nome} + '!'">Olá, Adulto 1!</h1>
-    <p class="sutil" th:if="${#lists.isEmpty(dependentes)}">Esta é a sua página na caixinha.</p>
-    <p class="sutil" th:unless="${#lists.isEmpty(dependentes)}"
-       th:text="'Você + ' + ${#lists.size(dependentes)} + (${#lists.size(dependentes) == 1} ? ' dependente: ' : ' dependentes: ') + ${#strings.listJoin(dependentes, ', ')}">
-        Você + 1 dependente: Bebê
-    </p>
+<body class="pagina-pessoal">
+<div class="faixa" th:text="${caixinha.nome}">Caixinha da Festa 2027</div>
+<main class="pessoal" th:with="f=${familia}, mes=${@fmt.mes(familia.mesAtual)}">
+    <h1 class="saudacao" th:text="'Oi, ' + ${f.responsavel.nome} + '!'">Oi, Ana!</h1>
+    <p class="quem" th:text="${quem}">Esta página é sua e de Theo.</p>
 
-    <section class="cartao aguarde">
-        <p class="icone" aria-hidden="true">🗓️</p>
-        <h2>Os depósitos começam em janeiro de 2027</h2>
-        <p>
-            A partir daí, aqui você vai ver a cota do mês, quanto já guardou,
-            o PIX pronto para copiar e o progresso da família.
-        </p>
+    <!-- O talão do mês: papel, canhoto picotado e borda serrilhada de notinha -->
+    <section class="talao papel" aria-label="Cota deste mês" th:if="${!#lists.isEmpty(f.pagantes)}">
+        <div class="canhoto">
+            <span th:text="'Mês ' + ${f.numeroMes} + ' de ' + ${f.totalMeses}">Mês 3 de 11</span>
+            <span th:text="${@fmt.mesAno(f.mesAtual)}">março de 2027</span>
+        </div>
+        <div class="corpo">
+            <th:block th:switch="${f.estado.name()}">
+                <th:block th:case="'SEM_VALOR'">
+                    <p class="rotulo" th:text="'Cota de ' + ${mes}">Cota de março</p>
+                    <p class="valor-indefinido">Valor ainda não definido</p>
+                    <p class="estado">O orçamento da festa ainda está sendo fechado. Assim que a cota sair, ela
+                        aparece aqui com o PIX pronto.</p>
+                </th:block>
+                <th:block th:case="'PAGO'">
+                    <p class="rotulo" th:text="'Cota de ' + ${mes} + ' paga'">Cota de março paga</p>
+                    <p class="valor num" th:text="${@fmt.reais(f.cotaFamilia)}">R$ 138,00</p>
+                    <span class="carimbo grande" aria-hidden="true">PAGO</span>
+                    <p class="estado">Obrigado! Agora é só esperar o próximo mês.</p>
+                </th:block>
+                <th:block th:case="*">
+                    <p class="rotulo" th:text="'Cota de ' + ${mes}">Cota de março</p>
+                    <p class="valor num">
+                        <span th:text="${@fmt.reais(f.cotaFamilia)}">R$ 138,00</span>
+                        <small class="estimado" th:unless="${f.cotaFixada}">(valor estimado)</small>
+                    </p>
+                    <p class="estado" th:if="${f.estado.name() == 'PENDENTE'}">
+                        <th:block th:text="${parcial} ? 'Já recebemos uma parte.' : 'Ainda não recebemos.'">Ainda não recebemos.</th:block>
+                        <span th:text="${divisao}">É R$ 92,00 de Ana e R$ 46,00 de Theo (meia cota).</span>
+                    </p>
+                    <p class="estado" th:if="${f.estado.name() == 'ATRASADO'}">
+                        <strong th:text="'Para ficar em dia: ' + ${@fmt.reais(f.valorPix)}">Para ficar em dia: R$ 414,00</strong>
+                        <span th:text="${divisao}"></span>
+                    </p>
+                </th:block>
+            </th:block>
+
+            <th:block th:if="${pix}">
+                <p class="recebedor">O PIX vai para <strong th:text="${recebedor}">FULANO DE TAL</strong>. Confira esse
+                    nome no seu banco antes de pagar.</p>
+                <button type="button" class="botao-pix" th:attr="data-copiar=${pix}"
+                        th:text="'Copiar PIX de ' + ${@fmt.reais(f.valorPix)}">Copiar PIX de R$ 138,00</button>
+                <ol class="passos">
+                    <li>Toque em <strong>Copiar PIX</strong>.</li>
+                    <li>Abra o app do seu banco e vá em <strong>PIX</strong> › <strong>Pix Copia e Cola</strong>.</li>
+                    <li>Cole e confirme. O valor já vem preenchido.</li>
+                </ol>
+                <details class="qr-pix">
+                    <summary>Pagar pelo QR Code</summary>
+                    <p>Para pagar de outro celular ou do computador: aponte a câmera do app do banco para o código.</p>
+                    <div class="qr" th:utext="${qr}"></div>
+                </details>
+                <label class="codigo">Se o botão não copiar, segure o dedo no código abaixo e copie:
+                    <textarea readonly rows="3" th:text="${pix}"></textarea>
+                </label>
+            </th:block>
+            <p class="estado" th:if="${semChave}">O PIX aparece aqui assim que o organizador cadastrar a chave.</p>
+        </div>
     </section>
 
-    <section class="cartao">
+    <th:block th:if="${!#lists.isEmpty(f.pagantes)}">
+        <h2>Seu carnê</h2>
+        <p class="dica">Cada mês pago ganha um carimbo de PAGO. O mês com a borda em destaque é o de agora.</p>
+        <ol class="carne num">
+            <li th:each="t : ${f.carne}"
+                th:with="nome=${@fmt.mes(t.mes)}"
+                th:classappend="${t.estado.name() == 'PAGO'} ? 'paga papel' : (${t.mes == f.mesAtual} ? 'atual' : (${t.mes.isAfter(f.mesAtual)} ? 'futura' : 'passada'))"
+                th:attr="aria-label=${t.estado.name() == 'PAGO'} ? ${nome} + ': pago em ' + ${@fmt.dataCurta(t.pagoEm)}
+                        : (${t.estado.name() == 'PARCIAL'} ? ${nome} + ': faltam ' + ${@fmt.reaisCurto(t.falta)} : ${nome} + ': em aberto')">
+                <span class="mes" th:text="${nome}">janeiro</span>
+                <span class="falta" th:if="${t.estado.name() == 'PARCIAL'}" th:text="'faltam ' + ${@fmt.reaisCurto(t.falta)}">faltam R$ 46</span>
+                <span class="v" th:if="${t.valor.signum() > 0}" th:text="${@fmt.reaisCurto(t.valor)}">R$ 138</span>
+                <span class="carimbo" th:if="${t.estado.name() == 'PAGO'}" aria-hidden="true">PAGO<small th:text="${@fmt.dataCurta(t.pagoEm)}">08/01</small></span>
+            </li>
+        </ol>
+    </th:block>
+
+    <h2>A família toda</h2>
+    <div class="familia">
+        <p class="grande num" th:text="${@fmt.reais(resumo.arrecadado)} + ' guardados'">R$ 2.760,00 guardados</p>
+        <div class="barra-familia" role="img" th:attr="aria-label=${resumo.percentual} + '% da meta'">
+            <span th:style="'width:' + ${resumo.percentual > 100 ? 100 : resumo.percentual} + '%'"></span>
+        </div>
+        <p class="num" th:text="${resumo.percentual} + '% da meta de ' + ${@fmt.reais(resumo.cota.meta)} + '. '
+                + ${resumo.emDia} + ' de ' + ${resumo.pagantes()} + ' pagantes estão em dia.'">24% da meta de R$ 11.638,00. 10 de 12 pagantes estão em dia.</p>
+        <p class="festa" th:text="${caixinha.dataFesta != null} ? 'Data da festa: ' + ${@fmt.data(caixinha.dataFesta)} : 'Data da festa: em votação'">Data da festa: em votação</p>
+    </div>
+
+    <a class="lembrete" th:href="@{/c/{t}/lembrete.ics(t=${token})}">
+        <span>📅 Pôr lembrete na agenda do celular</span>
+        <small>Todo dia 1º, às 9h, o celular avisa a hora de depositar.</small>
+    </a>
+
+    <h2>Seus depósitos</h2>
+    <p class="dica" th:if="${#lists.isEmpty(f.extrato)}">Nenhum depósito ainda.</p>
+    <ul class="extrato-pessoal num">
+        <li th:each="l : ${f.extrato}">
+            <span><span th:text="${l.pessoa.nome}">Ana</span><br><span class="d" th:text="${@fmt.data(l.data)}">11/02/2027</span></span>
+            <span th:text="${@fmt.reais(l.valorNoSaldo())}">R$ 92,00</span>
+        </li>
+    </ul>
+
+    <section class="guarde">
         <h2>Guarde este link</h2>
         <p>Ele é só seu e não precisa de senha. Salve nos favoritos ou fixe a conversa no WhatsApp,
             e não repasse para outras pessoas.</p>
     </section>
+    <p class="quem-organiza">Alguma dúvida? Fale com quem organiza a caixinha no WhatsApp.</p>
 </main>
 </body>
 </html>

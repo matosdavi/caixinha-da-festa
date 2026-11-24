@@ -1,0 +1,161 @@
+/* Página pessoal (/c/{token}): o carnê da família. Cores e fonte vêm dos tokens de estilo.css.
+   Ousadia num lugar só: o talão de papel e as folhinhas carimbadas. O resto fica quieto. */
+
+.pagina-pessoal .num { font-variant-numeric: tabular-nums; }
+
+.faixa {
+    padding: 14px 16px; background: var(--topo); color: var(--topo-texto);
+    font-weight: 700; font-stretch: 75%; font-size: 1.05rem; border-bottom: 1px solid var(--borda);
+}
+
+.pessoal { max-width: 480px; margin: 0 auto; padding: 0 16px 48px; }
+.pessoal .saudacao { font-size: 2rem; line-height: 1.1; margin: 20px 0 2px; font-weight: 800; font-stretch: 80%; }
+.pessoal .quem { margin: 0 0 20px; color: var(--sutil); }
+.pessoal h2 { font-size: 1.15rem; margin: 32px 0 4px; font-stretch: 85%; }
+.pessoal .dica { margin: 0 0 12px; color: var(--sutil); }
+
+/* ---------- Papel: grão + pautas (o talão do mês e as folhinhas pagas) ---------- */
+.papel {
+    background-color: var(--papel);
+    color: var(--papel-texto);
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.35'/%3E%3C/svg%3E"),
+        repeating-linear-gradient(to bottom, transparent 0 25px, rgba(107, 84, 20, .17) 25px 26px);
+}
+
+/* ---------- O talão do mês ---------- */
+.talao { position: relative; border-radius: 6px 6px 0 0; margin-bottom: 10px; }
+.talao::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -9px; height: 9px;
+    background:
+        linear-gradient(135deg, var(--papel) 6px, transparent 0) 0 0 / 12px 9px repeat-x,
+        linear-gradient(-135deg, var(--papel) 6px, transparent 0) 0 0 / 12px 9px repeat-x;
+}
+.talao .canhoto {
+    padding: 10px 16px; display: flex; justify-content: space-between; gap: 8px;
+    color: var(--papel-sutil); border-bottom: 2px dashed var(--papel-borda);
+}
+.talao .corpo { padding: 16px 16px 20px; line-height: 26px; position: relative; }
+.talao p { margin: 0; }
+.talao .rotulo { font-size: 1rem; }
+.talao .valor { font-size: 3.2rem; line-height: 1.05; font-weight: 800; font-stretch: 70%; letter-spacing: -.01em; }
+.talao .valor .estimado { display: block; font-size: 1rem; font-weight: 400; font-stretch: 100%; letter-spacing: 0;
+    color: var(--papel-sutil); line-height: 26px; }
+.talao .valor-indefinido { font-size: 1.6rem; font-weight: 800; font-stretch: 75%; margin: 4px 0; }
+.talao .estado { margin: 8px 0 14px; color: var(--papel-sutil); }
+.talao .estado strong { color: var(--papel-texto); display: block; }
+.talao .recebedor { margin: 0 0 14px; color: #4A3B0C; }
+.talao .recebedor strong { color: var(--papel-texto); }
+
+.botao-pix {
+    display: block; width: 100%; min-height: 54px; padding: 14px; border: 0; border-radius: 6px;
+    background: #0F2A23; color: var(--papel); font: inherit; font-weight: 700; font-size: 1.05rem; cursor: pointer;
+}
+.botao-pix:focus-visible, .qr-pix summary:focus-visible, .lembrete:focus-visible {
+    outline: 3px solid var(--tinta); outline-offset: 2px;
+}
+.passos { margin: 14px 0 0; padding: 12px 14px 12px 34px; background: rgba(255, 255, 255, .45);
+    border-radius: 6px; line-height: 1.45; }
+.passos li + li { margin-top: 4px; }
+
+.qr-pix { margin-top: 12px; }
+.qr-pix summary {
+    display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 12px;
+    border: 2px solid var(--papel-texto); border-radius: 6px; font-weight: 700; cursor: pointer; list-style: none;
+}
+.qr-pix summary::-webkit-details-marker { display: none; }
+.qr-pix p { margin: 12px 0 8px; line-height: 1.45; }
+.qr-pix .qr { max-width: 260px; margin: 0 auto; }
+.qr-pix .qr svg { display: block; width: 100%; height: auto; border-radius: 4px; }
+
+.talao .codigo { display: block; margin-top: 14px; line-height: 1.45; color: var(--papel-sutil); }
+.talao .codigo textarea {
+    display: block; width: 100%; margin-top: 6px; padding: 8px; font: inherit; font-size: 1rem;
+    border: 1px solid var(--papel-borda); border-radius: 6px; background: rgba(255, 255, 255, .6);
+    color: var(--papel-texto); word-break: break-all; resize: vertical;
+}
+
+/* ---------- O carnê: um talão por mês, carimbado quando pago ---------- */
+.carne { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.carne li {
+    position: relative; min-height: 128px; background: var(--cartao);
+    border: 1px solid var(--borda); border-radius: 4px; padding: 6px 8px;
+    display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
+}
+.carne .mes { font-weight: 700; font-stretch: 80%; font-size: 1.05rem; }
+.carne .v { color: var(--sutil); position: relative; z-index: 1; }
+.carne .falta { color: var(--texto); font-weight: 600; }
+.carne li.atual { border: 2px solid var(--papel); }
+.carne li.futura .mes, .carne li.futura .v { color: #9DB5AB; }
+
+/* Cada mês pago é uma folhinha destacada do bloco: picote em cima, serrilha embaixo, leve inclinação */
+.carne li.paga {
+    border: 0; border-radius: 0; padding-bottom: 12px;
+    background-color: var(--papel); color: var(--papel-texto);
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.35'/%3E%3C/svg%3E"),
+        repeating-linear-gradient(to bottom, transparent 0 15px, rgba(107, 84, 20, .2) 15px 16px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .25);
+}
+.carne li.paga .v { color: var(--papel-sutil); }
+.carne li.paga::before {
+    content: ""; position: absolute; top: 3px; left: 4px; right: 4px; height: 0;
+    border-top: 2px dotted rgba(107, 84, 20, .55);
+}
+.carne li.paga::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+    background:
+        linear-gradient(45deg, var(--fundo) 3px, transparent 0) 0 100% / 8px 6px repeat-x,
+        linear-gradient(-45deg, var(--fundo) 3px, transparent 0) 0 100% / 8px 6px repeat-x;
+}
+.carne li.paga:nth-child(odd) { transform: rotate(-.8deg); }
+.carne li.paga:nth-child(even) { transform: rotate(.6deg); }
+
+.carimbo {
+    position: absolute; left: 50%; top: 47%; transform: translate(-50%, -50%) rotate(-14deg);
+    border: 2.5px solid var(--tinta); color: var(--tinta); border-radius: 4px; padding: 1px 6px;
+    font-weight: 800; font-stretch: 62%; font-size: 1.25rem; letter-spacing: .06em;
+    opacity: .9; line-height: 1.15; text-align: center; mix-blend-mode: multiply;
+}
+.carimbo small { display: block; font-size: .8rem; letter-spacing: 0; font-weight: 700; }
+.carne li:nth-child(even) .carimbo { transform: translate(-50%, -50%) rotate(-6deg); }
+.talao .carimbo.grande { left: auto; right: 18px; top: 46px; transform: rotate(-12deg); font-size: 1.8rem; padding: 2px 10px; }
+
+/* ---------- Família ---------- */
+.familia { background: var(--cartao); border: 1px solid var(--borda); border-radius: 6px; padding: 16px; }
+.familia p { margin: 0; }
+.familia .grande { font-size: 1.6rem; font-weight: 800; font-stretch: 75%; color: var(--papel); }
+.familia .festa { margin-top: 8px; color: var(--sutil); }
+.barra-familia { height: 12px; border-radius: 6px; background: var(--borda); overflow: hidden; margin: 10px 0 8px; }
+.barra-familia span { display: block; height: 100%; background: var(--papel); }
+
+.lembrete {
+    display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding: 14px 16px; min-height: 48px;
+    border-radius: 6px; background: var(--lilas); color: var(--lilas-texto); text-decoration: none; font-weight: 600;
+}
+.lembrete small { font-weight: 400; font-size: 1rem; }
+
+/* ---------- Extrato ---------- */
+.extrato-pessoal { list-style: none; padding: 0; margin: 0; }
+.extrato-pessoal li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--borda); }
+.extrato-pessoal .d { color: var(--sutil); }
+
+.guarde { margin-top: 32px; }
+.guarde p { margin: 0; }
+.quem-organiza { color: var(--sutil); margin: 20px 0 0; }
+
+@media (prefers-color-scheme: light) {
+    .faixa { border-bottom: 0; }
+    .familia { background: var(--topo); border: 0; color: #fff; }
+    .familia .festa { color: #D3E8DE; }
+    .barra-familia { background: rgba(255, 255, 255, .25); }
+    .carne li.atual { border-color: var(--topo); }
+    .carne li.futura .mes, .carne li.futura .v { color: #5F6F68; }
+    .carne li.paga { box-shadow: 0 2px 0 rgba(0, 0, 0, .12); }
+    .talao { box-shadow: 0 1px 0 rgba(0, 0, 0, .08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}

@@ -15,7 +15,7 @@ document.addEventListener('click', async (evento) => {
         campo.remove();
     }
     const original = botao.textContent;
-    botao.textContent = 'Copiado ✓';
+    botao.textContent = 'Copiado!';
     setTimeout(() => { botao.textContent = original; }, 2000);
 });
 

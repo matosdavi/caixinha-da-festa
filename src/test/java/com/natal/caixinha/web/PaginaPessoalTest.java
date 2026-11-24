@@ -46,8 +46,8 @@ class PaginaPessoalTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string("Cache-Control", containsString("no-store")))
                 .andExpect(header().string("X-Robots-Tag", "noindex, nofollow"))
-                .andExpect(content().string(containsString("Olá, Carla Souza!")))
-                .andExpect(content().string(containsString("Você + 1 dependente: Lia")))
+                .andExpect(content().string(containsString("Oi, Carla Souza!")))
+                .andExpect(content().string(containsString("Esta página é sua e de Lia.")))
                 .andExpect(content().string(containsString("<meta name=\"robots\" content=\"noindex, nofollow\">")));
     }
 
@@ -56,8 +56,8 @@ class PaginaPessoalTest {
         Pessoa ana = criar("Ana", BigDecimal.ONE, null);
         mvc.perform(get("/c/" + links.tokensAtivos().get(ana.getId())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Esta é a sua página na caixinha.")))
-                .andExpect(content().string(not(containsString("dependente"))));
+                .andExpect(content().string(containsString("Esta página é sua.")))
+                .andExpect(content().string(not(containsString("Esta página é sua e"))));
     }
 
     @Test

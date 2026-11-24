@@ -25,6 +25,18 @@ public class Formato {
         return Dinheiro.formatar(valor);
     }
 
+    /** "R$ 138" quando não há centavos, "R$ 138,50" quando há (talões do carnê). */
+    public String reaisCurto(BigDecimal valor) {
+        if (valor == null) {
+            return "";
+        }
+        if (valor.stripTrailingZeros().scale() <= 0) {
+            DecimalFormat inteiro = new DecimalFormat("#,##0", DecimalFormatSymbols.getInstance(BR));
+            return "R$ " + inteiro.format(valor);
+        }
+        return reais(valor);
+    }
+
     /** 1.058,00 (sem "R$") */
     public String numero(BigDecimal valor) {
         if (valor == null) {
