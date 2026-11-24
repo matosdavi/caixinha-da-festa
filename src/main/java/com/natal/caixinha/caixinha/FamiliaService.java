@@ -127,6 +127,25 @@ public class FamiliaService {
                 carne, extrato);
     }
 
+    /**
+     * Para cada pagante ativo de uma família com 2 ou mais pagantes: o id do responsável dela.
+     * Serve para o painel levar ao "Pagamento da família" em vez do depósito individual.
+     */
+    @Transactional(readOnly = true)
+    public java.util.Map<Long, Long> responsavelDasFamiliasComVariosPagantes() {
+        java.util.Map<Long, Long> responsavelDe = new java.util.HashMap<>();
+        java.util.Map<Long, Integer> pagantesPorFamilia = new java.util.HashMap<>();
+        for (Pessoa p : pessoas.findByAtivoTrueOrderByNomeAsc()) {
+            if (p.isPagante()) {
+                Long responsavel = p.getResponsavel() == null ? p.getId() : p.getResponsavel().getId();
+                responsavelDe.put(p.getId(), responsavel);
+                pagantesPorFamilia.merge(responsavel, 1, Integer::sum);
+            }
+        }
+        responsavelDe.values().removeIf(r -> pagantesPorFamilia.get(r) < 2);
+        return responsavelDe;
+    }
+
     /** Divisão sugerida de um PIX da família em um depósito por pagante. */
     @Transactional(readOnly = true)
     public List<DivisaoFamilia.Parte> sugerirDivisao(Long responsavelId, BigDecimal total) {

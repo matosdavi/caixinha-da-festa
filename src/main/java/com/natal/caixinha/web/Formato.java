@@ -1,5 +1,6 @@
 package com.natal.caixinha.web;
 
+import com.natal.caixinha.comum.Dinheiro;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -21,10 +22,7 @@ public class Formato {
 
     /** R$ 1.058,00 */
     public String reais(BigDecimal valor) {
-        if (valor == null) {
-            return "";
-        }
-        return valor.signum() < 0 ? "− R$ " + numero(valor.negate()) : "R$ " + numero(valor);
+        return Dinheiro.formatar(valor);
     }
 
     /** 1.058,00 (sem "R$") */

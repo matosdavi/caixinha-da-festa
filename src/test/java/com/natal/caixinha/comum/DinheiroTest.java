@@ -40,4 +40,15 @@ class DinheiroTest {
     void vazioViraNulo(String texto) {
         assertNull(Dinheiro.ler(texto, "Valor"));
     }
+
+    @ParameterizedTest(name = "{0} → \"{1}\"")
+    @CsvSource(delimiter = '|', value = {
+            "92        | R$ 92,00",
+            "1058      | R$ 1.058,00",
+            "0.5       | R$ 0,50",
+            "-46       | − R$ 46,00",
+    })
+    void formataEmReais(String valor, String esperado) {
+        assertEquals(esperado, Dinheiro.formatar(new BigDecimal(valor)));
+    }
 }

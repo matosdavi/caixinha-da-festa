@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Pagamento da família · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('lancamentos')}"></header>
+<main class="conteudo">
+    <h1>Pagamento da família</h1>
+    <p class="sutil">Chegou um PIX só para a família toda? Digite o valor e o app divide em um depósito por pessoa.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:action="@{/painel/lancamentos/familia}" method="post" class="cartao formulario">
+        <label>Família
+            <select name="responsavelId" required>
+                <option value="">Escolha…</option>
+                <option th:each="o : ${familias}" th:value="${o.id}" th:text="${o.nome}"
+                        th:selected="${o.id == escolhido}">Adulto 1</option>
+            </select>
+        </label>
+
+        <div class="lado-a-lado">
+            <label>Valor do PIX (R$)
+                <input type="text" name="total" th:value="${total}" inputmode="decimal" placeholder="138,00"
+                       autocomplete="off" required>
+            </label>
+            <label>Data
+                <input type="date" name="data" th:value="${data}" required>
+            </label>
+        </div>
+
+        <button type="submit" class="botao-secundario" formmethod="get"
+                th:formaction="@{/painel/lancamentos/familia}" formnovalidate>Sugerir divisão</button>
+
+        <fieldset th:unless="${#lists.isEmpty(partes)}" class="partes">
+            <legend>Quanto vai para cada um</legend>
+            <label th:each="p : ${partes}">
+                <span th:text="${p.nome} + ' (peso ' + ${p.peso} + ')'">Adulto 1 (peso 1)</span>
+                <input type="text" th:name="'parte_' + ${p.pessoaId}" th:value="${p.valor}" inputmode="decimal"
+                       autocomplete="off">
+            </label>
+            <span class="ajuda">A sugestão cobre primeiro o que cada um precisa para ficar em dia. Pode ajustar antes
+                de lançar: a soma tem que dar o valor do PIX.</span>
+        </fieldset>
+
+        <button type="submit" class="botao" th:unless="${#lists.isEmpty(partes)}">Lançar depósitos</button>
+    </form>
+
+    <p><a th:href="@{/painel/lancamentos}">Voltar para Lançamentos</a></p>
+</main>
+</body>
+</html>

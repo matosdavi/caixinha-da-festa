@@ -34,6 +34,16 @@ public final class Dinheiro {
         }
     }
 
+    /** "R$ 1.058,00" (negativo: "− R$ 46,00"). */
+    public static String formatar(BigDecimal valor) {
+        if (valor == null) {
+            return "";
+        }
+        java.text.DecimalFormat formato = new java.text.DecimalFormat("#,##0.00",
+                java.text.DecimalFormatSymbols.getInstance(java.util.Locale.forLanguageTag("pt-BR")));
+        return valor.signum() < 0 ? "− R$ " + formato.format(valor.negate()) : "R$ " + formato.format(valor);
+    }
+
     /** Exige valor maior que zero, com no máximo 2 casas, e devolve com 2 casas. */
     public static BigDecimal positivo(BigDecimal valor, String campo) {
         if (valor == null || valor.signum() <= 0) {

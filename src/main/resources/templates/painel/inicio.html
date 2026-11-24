@@ -97,7 +97,9 @@
                         <span class="pequeno alerta-texto" th:unless="${st.emDia}"
                               th:text="${st.mesesDeAtraso} + (${st.mesesDeAtraso == 1} ? ' mês' : ' meses') + ' em atraso · para ficar em dia ' + ${@fmt.reais(st.valorParaFicarEmDia)}">2 meses em atraso</span>
                     </div>
-                    <a class="botao-secundario pequeno" th:if="${st.valorParaFicarEmDia.signum() > 0}"
+                    <a class="botao-secundario pequeno" th:if="${st.valorParaFicarEmDia.signum() > 0 && familiaDe.containsKey(s.pessoa.id)}"
+                       th:href="@{/painel/lancamentos/familia(responsavel=${familiaDe.get(s.pessoa.id)})}">Lançar família</a>
+                    <a class="botao-secundario pequeno" th:if="${st.valorParaFicarEmDia.signum() > 0 && !familiaDe.containsKey(s.pessoa.id)}"
                        th:href="@{/painel/lancamentos(pessoa=${s.pessoa.id}, valor=${@fmt.campo(st.valorParaFicarEmDia)})}">Lançar</a>
                 </div>
             </li>

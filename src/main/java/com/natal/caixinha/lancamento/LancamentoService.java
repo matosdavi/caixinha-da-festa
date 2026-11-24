@@ -3,6 +3,7 @@ package com.natal.caixinha.lancamento;
 import com.natal.caixinha.comum.Dinheiro;
 import com.natal.caixinha.comum.RegraException;
 import com.natal.caixinha.orcamento.Categoria;
+import com.natal.caixinha.caixinha.DivisaoFamilia;
 import com.natal.caixinha.pessoa.Pessoa;
 import com.natal.caixinha.pessoa.PessoaRepository;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,10 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Lançamentos da conta. Só o organizador lança (o painel exige login).
@@ -92,6 +96,46 @@ public class LancamentoService {
 
         return lancamentos.save(new Lancamento(tipo, pessoa, valor, d.data(), descricao, categoria, url,
                 OffsetDateTime.now(clock)));
+    }
+
+    /**
+     * Um PIX da família vira um depósito por pessoa (decisão da fase 4).
+     * As partes precisam somar o total e ser do responsável ou de dependentes ativos dele.
+     */
+    @Transactional
+    public List<Lancamento> registrarPagamentoDaFamilia(Long responsavelId, BigDecimal total, LocalDate data,
+                                                        List<DivisaoFamilia.Parte> partes) {
+        BigDecimal pix = Dinheiro.positivo(total, "O valor do PIX");
+        if (responsavelId == null) {
+            throw new RegraException("Escolha a família.");
+        }
+        Set<Long> daFamilia = new HashSet<>();
+        daFamilia.add(responsavelId);
+        pessoas.findByResponsavelIdOrderByNomeAsc(responsavelId).stream()
+                .filter(Pessoa::isAtivo).forEach(p -> daFamilia.add(p.getId()));
+
+        BigDecimal soma = BigDecimal.ZERO;
+        for (DivisaoFamilia.Parte parte : partes) {
+            BigDecimal valor = Dinheiro.naoNegativo(parte.valor(), "Cada parte");
+            if (!daFamilia.contains(parte.pessoaId())) {
+                throw new RegraException("Uma das pessoas não é da família escolhida.");
+            }
+            soma = soma.add(valor == null ? BigDecimal.ZERO : valor);
+        }
+        if (soma.compareTo(pix) != 0) {
+            throw new RegraException("As partes somam " + Dinheiro.formatar(soma) + ", mas o PIX foi de "
+                    + Dinheiro.formatar(pix) + ".");
+        }
+
+        String descricao = "Pagamento da família: PIX de " + Dinheiro.formatar(pix);
+        List<Lancamento> criados = new ArrayList<>();
+        for (DivisaoFamilia.Parte parte : partes) {
+            if (parte.valor() != null && parte.valor().signum() > 0) {
+                criados.add(registrar(new DadosLancamento(TipoLancamento.DEPOSITO, parte.pessoaId(), parte.valor(),
+                        data, descricao, null, null)));
+            }
+        }
+        return criados;
     }
 
     @Transactional

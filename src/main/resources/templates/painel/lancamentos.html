@@ -9,6 +9,9 @@
 
     <div th:replace="~{fragmentos :: avisos}"></div>
 
+    <p><a class="botao-secundario" th:href="@{/painel/lancamentos/familia}">Pagamento da família</a>
+        <span class="ajuda">um PIX para a família toda vira um depósito por pessoa</span></p>
+
     <form th:action="@{/painel/lancamentos}" th:object="${form}" method="post" class="cartao formulario"
           id="novo-lancamento" data-lancamento>
         <h2>Novo lançamento</h2>
