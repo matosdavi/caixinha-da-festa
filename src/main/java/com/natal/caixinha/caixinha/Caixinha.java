@@ -63,6 +63,13 @@ public class Caixinha {
 
     public boolean isCotaFixada() { return cotaBase != null; }
 
+    /** Chave já normalizada; nome e cidade como o organizador digitou (a limpeza para o PIX é no BrCode). */
+    void configurarPix(String chave, String nome, String cidade) {
+        this.chavePix = chave;
+        this.nomeRecebedor = nome;
+        this.cidadeRecebedor = cidade;
+    }
+
     public Long getId() { return id; }
     public String getNome() { return nome; }
     public YearMonth getMesInicio() { return mesInicio; }

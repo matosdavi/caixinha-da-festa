@@ -17,6 +17,7 @@
         <a th:href="@{/painel/pessoas}" th:attr="aria-current=${ativo == 'pessoas'} ? 'page' : null">Pessoas</a>
         <a th:href="@{/painel/lancamentos}" th:attr="aria-current=${ativo == 'lancamentos'} ? 'page' : null">Lançamentos</a>
         <a th:href="@{/painel/orcamento}" th:attr="aria-current=${ativo == 'orcamento'} ? 'page' : null">Orçamento</a>
+        <a th:href="@{/painel/configuracoes}" th:attr="aria-current=${ativo == 'configuracoes'} ? 'page' : null">Configurações</a>
     </nav>
     <form th:action="@{/sair}" method="post">
         <button type="submit" class="botao-link">Sair</button>

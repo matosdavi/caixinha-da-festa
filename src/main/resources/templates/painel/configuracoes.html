@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Configurações · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('configuracoes')}"></header>
+<main class="conteudo">
+    <h1>Configurações</h1>
+    <p class="sutil">A chave PIX da conta da festa. É com ela que cada família paga pelo link pessoal.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:action="@{/painel/configuracoes}" method="post" class="cartao formulario">
+        <h2>PIX</h2>
+        <label>Tipo da chave
+            <select name="tipo" required>
+                <option value="">Escolha…</option>
+                <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.rotulo}"
+                        th:selected="${t == tipo}">CPF</option>
+            </select>
+            <span class="ajuda">CPF e celular têm 11 números cada, por isso o tipo é escolhido aqui.</span>
+        </label>
+        <label>Chave PIX
+            <input type="text" name="chave" th:value="${chave}" maxlength="77" autocomplete="off" required>
+        </label>
+        <label>Nome de quem recebe
+            <input type="text" name="nome" th:value="${nome}" maxlength="25" autocomplete="off" required>
+            <span class="ajuda">Como aparece no banco. No PIX vai sem acento, em maiúsculas, com até 25 letras.</span>
+        </label>
+        <label>Cidade
+            <input type="text" name="cidade" th:value="${cidade}" maxlength="15" autocomplete="off" required>
+        </label>
+        <p class="sutil" th:if="${!#strings.isEmpty(nomeNoPix)}">
+            Vai aparecer no PIX como: <strong th:text="${nomeNoPix} + ' / ' + ${cidadeNoPix}">NOME / CIDADE</strong>
+        </p>
+        <button type="submit" class="botao">Salvar</button>
+    </form>
+
+    <section class="cartao" th:if="${pixDeTeste}">
+        <h2>PIX de teste de R$ 1,00</h2>
+        <p>Antes de mandar os links, pague este PIX no app do seu banco e confira se o nome que aparece é o
+            da conta da festa.</p>
+        <textarea class="codigo-pix" readonly rows="4" th:text="${pixDeTeste}"></textarea>
+        <button type="button" class="botao" th:attr="data-copiar=${pixDeTeste}">Copiar PIX de teste</button>
+        <div class="qr" th:utext="${qrDeTeste}"></div>
+    </section>
+</main>
+</body>
+</html>

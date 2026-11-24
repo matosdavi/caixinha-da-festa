@@ -141,6 +141,34 @@ public class CaixinhaService {
                 percentual, situacoes, emDia);
     }
 
+    /** Grava a chave PIX (validada pelo tipo), o nome e a cidade de quem recebe. */
+    @Transactional
+    public void salvarPix(com.natal.caixinha.pix.ChavePix.Tipo tipo, String chave, String nome, String cidade) {
+        String normalizada = com.natal.caixinha.pix.ChavePix.normalizar(tipo, chave);
+        String n = nome == null ? "" : nome.trim().replaceAll("\\s+", " ");
+        String cid = cidade == null ? "" : cidade.trim().replaceAll("\\s+", " ");
+        if (n.isEmpty()) {
+            throw new RegraException("Informe o nome de quem recebe o PIX, como aparece no banco.");
+        }
+        if (cid.isEmpty()) {
+            throw new RegraException("Informe a cidade de quem recebe o PIX.");
+        }
+        caixinhas.configuracao().configurarPix(normalizada,
+                n.substring(0, Math.min(n.length(), com.natal.caixinha.pix.BrCode.MAX_NOME)),
+                cid.substring(0, Math.min(cid.length(), com.natal.caixinha.pix.BrCode.MAX_CIDADE)));
+    }
+
+    /** Quem recebe o PIX; vazio enquanto a chave não foi cadastrada. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<com.natal.caixinha.pix.BrCode.Recebedor> recebedor() {
+        Caixinha c = caixinhas.configuracao();
+        if (c.getChavePix() == null || c.getChavePix().isBlank()) {
+            return java.util.Optional.empty();
+        }
+        return java.util.Optional.of(new com.natal.caixinha.pix.BrCode.Recebedor(
+                c.getChavePix(), c.getNomeRecebedor(), c.getCidadeRecebedor()));
+    }
+
     /** Fixa a cota estimada de agora como cota base. Só uma vez. */
     @Transactional
     public BigDecimal fixarCota() {
