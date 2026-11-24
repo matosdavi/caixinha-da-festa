@@ -38,4 +38,16 @@ class ChavePixTest {
         RegraException erro = assertThrows(RegraException.class, () -> ChavePix.normalizar(tipo, texto));
         assertTrue(erro.getMessage().contains(mensagem), erro.getMessage());
     }
+
+    @ParameterizedTest(name = "{0} → {1}")
+    @CsvSource(delimiter = '|', value = {
+            "52998224725                          | CPF",
+            "11222333000181                       | CNPJ",
+            "+5511999998888                       | CELULAR",
+            "fulano@exemplo.com                   | EMAIL",
+            "123e4567-e12b-12d1-a456-426655440000 | ALEATORIA",
+    })
+    void reconheceOTipoDaChaveJaNormalizada(String chave, ChavePix.Tipo tipo) {
+        assertEquals(tipo, ChavePix.tipoDe(chave));
+    }
 }

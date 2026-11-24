@@ -31,7 +31,7 @@ public class ConfiguracoesController {
     @GetMapping
     public String formulario(Model model) {
         var r = caixinha.recebedor();
-        return pagina(model, null, r.map(BrCode.Recebedor::chave).orElse(""),
+        return pagina(model, r.map(x -> ChavePix.tipoDe(x.chave())).orElse(null), r.map(BrCode.Recebedor::chave).orElse(""),
                 r.map(BrCode.Recebedor::nome).orElse(""), r.map(BrCode.Recebedor::cidade).orElse(""));
     }
 

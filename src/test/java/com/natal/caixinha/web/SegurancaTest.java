@@ -81,4 +81,16 @@ class SegurancaTest {
         mvc.perform(post("/sair").with(csrf()))
                 .andExpect(redirectedUrl("/entrar?saiu"));
     }
+
+    @Test
+    void fonteAbreSemLogin() throws Exception {
+        mvc.perform(get("/fontes/archivo-latin-wdth-normal.woff2")).andExpect(status().isOk());
+    }
+
+    @Test
+    void paginasUsamATemaQueSegueOCelular() throws Exception {
+        mvc.perform(get("/entrar"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "<meta name=\"color-scheme\" content=\"light dark\">")));
+    }
 }

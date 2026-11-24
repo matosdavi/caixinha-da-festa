@@ -46,6 +46,29 @@ public final class ChavePix {
         };
     }
 
+    /**
+     * Tipo de uma chave já gravada (normalizada), para mostrar de novo na tela.
+     * Depois de normalizada não há ambiguidade: celular começa com +55, CPF tem 11 dígitos e CNPJ 14.
+     */
+    public static Tipo tipoDe(String normalizada) {
+        if (normalizada == null || normalizada.isBlank()) {
+            return null;
+        }
+        if (normalizada.startsWith("+")) {
+            return Tipo.CELULAR;
+        }
+        if (normalizada.contains("@")) {
+            return Tipo.EMAIL;
+        }
+        if (normalizada.matches("\\d{11}")) {
+            return Tipo.CPF;
+        }
+        if (normalizada.matches("\\d{14}")) {
+            return Tipo.CNPJ;
+        }
+        return Tipo.ALEATORIA;
+    }
+
     private static String cpf(String texto) {
         String d = texto.replaceAll("[.\\-\\s]", "");
         if (!d.matches("\\d{11}") || d.chars().distinct().count() == 1

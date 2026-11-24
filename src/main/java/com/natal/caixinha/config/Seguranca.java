@@ -66,7 +66,7 @@ public class Seguranca {
     public SecurityFilterChain filtros(HttpSecurity http, UserDetailsService organizador) throws Exception {
         http
                 .authorizeHttpRequests(rotas -> rotas
-                        .requestMatchers("/health", "/entrar", "/css/**", "/js/**", "/favicon.ico", "/error").permitAll()
+                        .requestMatchers("/health", "/entrar", "/css/**", "/js/**", "/fontes/**", "/favicon.ico", "/error").permitAll()
                         // link pessoal de cada responsável (fase 2)
                         .requestMatchers("/c/**").permitAll()
                         .anyRequest().hasRole("ORGANIZADOR"))
