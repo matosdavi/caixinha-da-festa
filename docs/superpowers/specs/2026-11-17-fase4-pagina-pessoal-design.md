@@ -83,13 +83,13 @@ Tudo é calculado por **família**: o responsável do link e os dependentes ativ
 quem é pagante (peso > 0). Para cada pessoa da família vale a regra 3.2 da spec já implementada em
 `CalculadoraCaixinha.situacao` (cota da pessoa, guardado da pessoa).
 
-1. **Saudação:** "Oi, {nome}!" e quem está na família: "Esta página é sua e do Theo." Dependente de
+1. **Saudação:** "Oi, {nome}!" e quem está na família: "Esta página é sua e de Theo." Dependente de
    peso 0 aparece como "(não paga)".
 2. **Talão do mês (papel, serrilhado):**
    - canhoto: "Mês {n} de {total}" e "{mês} de {ano}" (n = posição do mês atual na caixinha; uma palavra só para tudo: "mês" e "cota", nunca "parcela");
    - "Cota de {mês}" e o valor da família (soma das cotas dos pagantes);
    - linha de estado, um destes:
-     - **pendente, em dia:** "Ainda não recebemos. É R$ 92 da Ana e R$ 46 do Theo (meia cota)." (lista só quem falta pagar o mês);
+     - **pendente, em dia:** "Ainda não recebemos. É R$ 92 de Ana e R$ 46 de Theo (meia cota)." (lista só quem falta pagar o mês);
      - **atrasado:** "Para ficar em dia: R$ X", sem palavra de cobrança, e a mesma divisão por pessoa;
      - **paga:** "Cota de março paga" com o carimbo no talão; o botão de PIX some.
    - valor do PIX = soma de `valorParaFicarEmDia` de cada pagante da família (que já inclui o mês atual);
