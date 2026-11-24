@@ -93,4 +93,18 @@ class ConfiguracoesWebTest {
         mvc.perform(get("/painel"))
                 .andExpect(content().string(containsString("href=\"/painel/configuracoes\"")));
     }
+
+    @Test
+    @WithMockUser(roles = "ORGANIZADOR")
+    void nomeOuCidadeSoComSimbolos() throws Exception {
+        mvc.perform(post("/painel/configuracoes").with(csrf())
+                        .param("tipo", "EMAIL").param("chave", "a@b.com").param("nome", "!!!").param("cidade", "Santos"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Informe o nome de quem recebe")));
+        mvc.perform(post("/painel/configuracoes").with(csrf())
+                        .param("tipo", "EMAIL").param("chave", "a@b.com").param("nome", "Ana").param("cidade", "—"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Informe a cidade")));
+        assertNull(caixinhas.configuracao().getChavePix());
+    }
 }

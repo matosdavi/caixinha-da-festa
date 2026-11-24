@@ -15,13 +15,13 @@ public final class QrCodeSvg {
     private QrCodeSvg() {
     }
 
+    /** Sem dica de charset: o PIX é ASCII e, como nos QR dos bancos, sai sem cabeçalho ECI. */
     public static String svg(String texto) {
         BitMatrix m;
         try {
             m = new QRCodeWriter().encode(texto, BarcodeFormat.QR_CODE, 0, 0, Map.of(
                     EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M,
-                    EncodeHintType.MARGIN, 4,
-                    EncodeHintType.CHARACTER_SET, "UTF-8"));
+                    EncodeHintType.MARGIN, 4));
         } catch (WriterException e) {
             throw new IllegalArgumentException("Texto grande demais para um QR Code.", e);
         }

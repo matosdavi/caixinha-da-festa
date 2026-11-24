@@ -66,7 +66,8 @@ public class PagamentoFamiliaController {
         }
         try {
             Familia f = familias.daFamilia(escolhido);
-            BigDecimal valor = total == null || total.isBlank() ? f.valorPix() : Dinheiro.ler(total, "Valor do PIX");
+            BigDecimal valor = total == null || total.isBlank() ? f.valorPix()
+                    : Dinheiro.positivo(Dinheiro.ler(total, "Valor do PIX"), "Valor do PIX");
             Map<Long, String> sugestao = new HashMap<>();
             if (valor != null && valor.signum() > 0) {
                 for (DivisaoFamilia.Parte p : familias.sugerirDivisao(escolhido, valor)) {

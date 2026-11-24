@@ -22,4 +22,10 @@ class QrCodeSvgTest {
         String pix = BrCode.gerar(BrCodeTest.recebedor(), new java.math.BigDecimal("138"), "CX20277");
         assertFalse(QrCodeSvg.svg(pix).contains("viewBox=\"0 0 29 29\""));
     }
+
+    @Test
+    void semCabecalhoEciComoOsQrDosBancos() {
+        // 14 letras em modo byte cabem na versão 1-M só sem o cabeçalho ECI (12 bits a mais)
+        assertTrue(QrCodeSvg.svg("abcdefghijklmn").contains("viewBox=\"0 0 29 29\""));
+    }
 }

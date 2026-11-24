@@ -146,4 +146,13 @@ class PagamentoFamiliaWebTest {
         mvc.perform(get("/painel/lancamentos"))
                 .andExpect(content().string(containsString("href=\"/painel/lancamentos/familia\"")));
     }
+
+    @Test
+    @WithMockUser(roles = "ORGANIZADOR")
+    void sugestaoComTresCasasMostraErroEmVezDeQuebrar() throws Exception {
+        mvc.perform(get("/painel/lancamentos/familia").param("responsavel", pessoa("Adulto 1").getId().toString())
+                        .param("total", "138,505"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("no máximo 2 casas decimais")));
+    }
 }

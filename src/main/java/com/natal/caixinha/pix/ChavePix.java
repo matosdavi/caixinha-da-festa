@@ -121,7 +121,8 @@ public final class ChavePix {
 
     private static String email(String texto) {
         String e = texto.toLowerCase(Locale.ROOT);
-        if (e.length() > MAXIMO || !e.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
+        // só ASCII: o BR Code conta o tamanho dos campos em caracteres e os bancos recusam acento
+        if (e.length() > MAXIMO || !e.matches("[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,}")) {
             throw new RegraException("E-mail inválido: confira se está como fulano@exemplo.com.");
         }
         return e;

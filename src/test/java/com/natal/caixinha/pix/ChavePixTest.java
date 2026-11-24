@@ -31,6 +31,8 @@ class ChavePixTest {
             "CELULAR   | 9999-8888          | DDD",
             "EMAIL     | fulano.exemplo.com | E-mail inválido",
             "EMAIL     | fulano@exemplo     | E-mail inválido",
+            "EMAIL     | joão@exemplo.com   | E-mail inválido",
+            "EMAIL     | '<a>@exemplo.com'  | E-mail inválido",
             "ALEATORIA | 123e4567           | Chave aleatória inválida",
             "CPF       | ''                 | Informe a chave PIX",
     })

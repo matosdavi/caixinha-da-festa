@@ -147,10 +147,11 @@ public class CaixinhaService {
         String normalizada = com.natal.caixinha.pix.ChavePix.normalizar(tipo, chave);
         String n = nome == null ? "" : nome.trim().replaceAll("\\s+", " ");
         String cid = cidade == null ? "" : cidade.trim().replaceAll("\\s+", " ");
-        if (n.isEmpty()) {
+        // o PIX usa só letras e números: um nome feito só de símbolos sairia vazio e o banco recusaria
+        if (com.natal.caixinha.pix.BrCode.limpar(n, com.natal.caixinha.pix.BrCode.MAX_NOME).isEmpty()) {
             throw new RegraException("Informe o nome de quem recebe o PIX, como aparece no banco.");
         }
-        if (cid.isEmpty()) {
+        if (com.natal.caixinha.pix.BrCode.limpar(cid, com.natal.caixinha.pix.BrCode.MAX_CIDADE).isEmpty()) {
             throw new RegraException("Informe a cidade de quem recebe o PIX.");
         }
         caixinhas.configuracao().configurarPix(normalizada,
