@@ -37,6 +37,8 @@ class CronogramaWebTest {
     OrcamentoService orcamento;
     @Autowired
     CaixinhaRepository caixinhas;
+    @Autowired
+    com.natal.caixinha.lancamento.LancamentoService lancamentos;
 
     void orcamento(String real) {
         orcamento.salvar(null, new DadosItem(Categoria.ALUGUEL, "Casa", new BigDecimal("6000"),
@@ -78,6 +80,19 @@ class CronogramaWebTest {
         mvc.perform(get("/painel/cronograma"))
                 .andExpect(content().string(containsString("faltam R$ 152,00")))
                 .andExpect(content().string(containsString("pague uma parte agora")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ORGANIZADOR")
+    void depoisDeLancarOAluguelMostraLugarPago() throws Exception {
+        orcamento(null);
+        lancamentos.registrar(new com.natal.caixinha.lancamento.DadosLancamento(
+                com.natal.caixinha.lancamento.TipoLancamento.GASTO, null, new BigDecimal("6000"),
+                LocalDate.of(2027, 3, 10), "Airbnb", Categoria.ALUGUEL, null));
+        mvc.perform(post("/painel/cronograma").param("dataFesta", "2027-12-20").with(csrf()));
+        mvc.perform(get("/painel/cronograma"))
+                .andExpect(content().string(containsString("✅ Lugar pago.")))
+                .andExpect(content().string(not(containsString("faltam"))));
     }
 
     @Test

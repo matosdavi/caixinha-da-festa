@@ -31,4 +31,8 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
 
     @Query("select coalesce(sum(l.valor), 0) from Lancamento l where l.pessoa.id = :pessoaId and l.tipo = :tipo")
     BigDecimal somaDaPessoa(Long pessoaId, TipoLancamento tipo);
+
+    /** Soma dos lançamentos de um tipo e categoria (por exemplo, o aluguel já pago). */
+    @Query("select coalesce(sum(l.valor), 0) from Lancamento l where l.tipo = :tipo and l.categoria = :categoria")
+    BigDecimal somaPorTipoECategoria(TipoLancamento tipo, com.natal.caixinha.orcamento.Categoria categoria);
 }

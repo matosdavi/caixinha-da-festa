@@ -17,7 +17,7 @@ Java/Spring Boot, Render e Neon.
 | 3 | Lançamentos, cálculos (cota, situação, atrasos) e orçamento com "Fixar cota" | ✅ no ar |
 | 4 | Página pessoal (carnê), PIX copia e cola com QR Code, .ics, Configurações, pagamento da família, identidade visual | ✅ no ar; PIX testado num banco real e .ics testado no iPhone; falta testar o .ics no Android |
 | 5 | Lembretes e WhatsApp: cartão do grupo no dia 1 e lista de quem não pagou a partir do dia 20 | 🟡 pronta; os cartões aparecem a partir de 1º/01/2027 |
-| 6 | Cronograma e verificação do sinal (o orçamento veio na fase 3) | 🟡 pronta; falta definir a data da festa no Cronograma |
+| 6 | Cronograma e verificação do pagamento do lugar (o orçamento veio na fase 3) | 🟡 pronta; falta definir a data da festa no Cronograma |
 | 7 | Desconto de novembro, desistência, entrada tardia, prestação de contas | — |
 
 ## Tecnologias

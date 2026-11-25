@@ -36,7 +36,8 @@
                     <p class="aviso erro" th:if="${visao.semAluguel}">
                         Cadastre o aluguel no <a th:href="@{/painel/orcamento}">orçamento</a> para conferir se dá para pagar.
                     </p>
-                    <th:block th:each="v : ${visao.verificacao.stream().toList()}">
+                    <p class="aviso" th:if="${visao.lugarPago}">✅ Lugar pago.</p>
+                    <th:block th:unless="${visao.lugarPago}" th:each="v : ${visao.verificacao.stream().toList()}">
                         <p class="aviso" th:if="${v.cobre()}"
                            th:text="'Em ' + ${@fmt.mes(v.mes)} + ' a caixinha deve ter ' + ${@fmt.reais(v.previsto)}
                                     + ' e o lugar custa ' + ${@fmt.reais(v.aluguel)} + '. ✅ Dá para pagar.'">✅</p>

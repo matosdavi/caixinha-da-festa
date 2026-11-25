@@ -34,6 +34,8 @@ class CronogramaServiceTest {
     OrcamentoService orcamento;
     @Autowired
     CaixinhaRepository caixinhas;
+    @Autowired
+    com.natal.caixinha.lancamento.LancamentoService lancamentos;
 
     void aluguel(String previsto, String real) {
         orcamento.salvar(null, new DadosItem(Categoria.ALUGUEL, "Casa", new BigDecimal(previsto),
@@ -70,6 +72,27 @@ class CronogramaServiceTest {
         aluguel("6000", "6500");
         cronograma.definirDataFesta(DIA_20);
         assertEquals(new BigDecimal("152.00"), cronograma.visao().verificacao().orElseThrow().falta());
+    }
+
+    @Test
+    void depoisDePagarOLugarNaoDaAlarmeFalso() {
+        aluguel("6000", null);
+        cronograma.definirDataFesta(DIA_20);
+        lancamentos.registrar(new com.natal.caixinha.lancamento.DadosLancamento(
+                com.natal.caixinha.lancamento.TipoLancamento.GASTO, null, new BigDecimal("6000"),
+                LocalDate.of(2027, 3, 10), "Airbnb", Categoria.ALUGUEL, null));
+        Visao v = cronograma.visao();
+        assertTrue(v.lugarPago());
+        var ver = v.verificacao().orElseThrow();
+        assertTrue(ver.cobre(), "o pagamento do lugar não conta contra ele mesmo: " + ver);
+        assertEquals(new BigDecimal("6348.00"), ver.previsto());
+    }
+
+    @Test
+    void etapaDaFestaNaFraseFicaNatural() {
+        cronograma.definirDataFesta(DIA_20);
+        var festa = cronograma.visao().etapas().get(6);
+        assertEquals("a festa 🎉", festa.frase());
     }
 
     @Test

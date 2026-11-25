@@ -18,13 +18,18 @@ public final class Cronograma {
 
     public enum Estado { FEITO, AGORA, PROXIMA }
 
+    static final String FESTA = "Festa! 🎉";
+
     /**
      * @param reserva marca a etapa em que o lugar é pago, onde aparece a verificação
      */
     public record Etapa(String titulo, String detalhe, YearMonth mes, Estado estado, boolean reserva) {
 
-        /** O título no meio de uma frase: "procurar o lugar". */
+        /** O título no meio de uma frase: "procurar o lugar"; a última etapa vira "a festa 🎉". */
         public String frase() {
+            if (titulo.equals(FESTA)) {
+                return "a festa 🎉";
+            }
             return titulo.substring(0, 1).toLowerCase(java.util.Locale.ROOT) + titulo.substring(1);
         }
     }
@@ -69,7 +74,7 @@ public final class Cronograma {
                 d.mesFim().minusMonths(1), hoje, false));
         etapas.add(etapa("Último depósito e sorteio do amigo secreto", "o depósito de novembro já vem com o desconto",
                 d.mesFim(), hoje, false));
-        etapas.add(etapa("Festa! 🎉", "compras de perecíveis; prestação de contas em até 7 dias",
+        etapas.add(etapa(FESTA,"compras de perecíveis; prestação de contas em até 7 dias",
                 festa, hoje, false));
         return etapas;
     }
