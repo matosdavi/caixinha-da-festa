@@ -14,6 +14,47 @@
 
     <div th:replace="~{fragmentos :: avisos}"></div>
 
+    <section class="cartao lembrete" th:if="${cartaoGrupo}">
+        <h2 th:text="'Lembrete de ' + ${@fmt.mes(cartaoGrupo.mes)}">Lembrete de março</h2>
+        <p class="ajuda">Mensagem para o grupo da família. Some depois que você enviar.</p>
+        <pre class="mensagem" th:text="${cartaoGrupo.texto}">*Caixinha da festa* 🎉</pre>
+        <div class="acoes">
+            <form method="post" th:action="@{/painel/lembretes/grupo}" target="_blank" data-recarregar>
+                <input type="hidden" name="mes" th:value="${cartaoGrupo.mes}">
+                <button type="submit" class="botao whatsapp">Enviar no WhatsApp</button>
+            </form>
+            <button type="button" class="botao-secundario" th:attr="data-copiar=${cartaoGrupo.texto}">Copiar</button>
+        </div>
+    </section>
+
+    <section class="cartao lembrete" th:if="${cartaoIndividual}">
+        <h2 th:text="'Quem ainda não pagou ' + ${@fmt.mes(cartaoIndividual.mes)}">Quem ainda não pagou março</h2>
+        <p class="ajuda">Uma mensagem para cada família, com o valor e o link pessoal. Some quando todos forem avisados.</p>
+        <ul class="extrato">
+            <li th:each="l : ${cartaoIndividual.linhas}">
+                <div class="extrato-linha">
+                    <div>
+                        <strong th:text="${l.nome}">Adulto 2</strong>
+                        <span class="sutil pequeno" th:text="${@fmt.reais(l.valor)}">R$ 276,00</span>
+                        <span class="sutil pequeno" th:if="${l.telefone == null}">sem telefone: o WhatsApp pede o contato</span>
+                    </div>
+                    <form method="post" th:action="@{/painel/lembretes/individual}" target="_blank" data-recarregar
+                          th:unless="${l.avisado}">
+                        <input type="hidden" name="mes" th:value="${cartaoIndividual.mes}">
+                        <input type="hidden" name="pessoaId" th:value="${l.pessoaId}">
+                        <button type="submit" class="botao whatsapp pequeno">Enviar no WhatsApp</button>
+                    </form>
+                    <form method="post" th:action="@{/painel/lembretes/desfazer}" th:if="${l.avisado}" class="avisado">
+                        <span>Avisado ✓</span>
+                        <input type="hidden" name="mes" th:value="${cartaoIndividual.mes}">
+                        <input type="hidden" name="pessoaId" th:value="${l.pessoaId}">
+                        <button type="submit" class="botao-link pequeno">desfazer</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </section>
+
     <p class="aviso erro" th:if="${c.cota.signum() == 0}">
         Ainda não há orçamento, então a cota é R$ 0. <a th:href="@{/painel/orcamento}">Cadastre o orçamento</a>.
     </p>

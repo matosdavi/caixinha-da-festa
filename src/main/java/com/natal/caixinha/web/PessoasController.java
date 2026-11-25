@@ -12,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,7 +47,7 @@ public class PessoasController {
     public String listar(Model model) {
         List<Pessoa> todas = pessoas.listar();
         Map<Long, String> tokens = links.tokensAtivos();
-        String base = urlBase();
+        String base = Enderecos.base();
         String nomeCaixinha = caixinhas.configuracao().getNome();
 
         List<LinhaPessoa> linhas = new ArrayList<>();
@@ -178,10 +177,5 @@ public class PessoasController {
                 + "Este é o seu link da *" + nomeCaixinha + "*:\n" + link + "\n\n"
                 + "Por ele você acompanha " + deQuem + ". "
                 + "Não precisa de senha: é só guardar o link e não repassar.";
-    }
-
-    /** https://caixinha-da-festa.onrender.com (o Render repassa o https nos cabeçalhos X-Forwarded-*). */
-    private static String urlBase() {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }
 }

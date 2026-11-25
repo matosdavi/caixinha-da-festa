@@ -54,3 +54,10 @@ document.querySelectorAll('[data-lancamento]').forEach((form) => {
     tipo.addEventListener('change', atualizar);
     atualizar();
 });
+
+// Lembretes: o formulário abre o WhatsApp numa aba nova; esta aba recarrega para mostrar o aviso gravado.
+document.addEventListener('submit', (evento) => {
+    if (evento.target.matches('[data-recarregar]') && !evento.defaultPrevented) {
+        setTimeout(() => window.location.reload(), 1000);
+    }
+});

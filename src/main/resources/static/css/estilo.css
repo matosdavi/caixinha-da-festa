@@ -242,3 +242,16 @@ input[type=url] { background: var(--campo); color: var(--texto); font: inherit; 
 .qr { max-width: 240px; margin-top: 12px; }
 .qr svg { display: block; width: 100%; height: auto; border-radius: 6px; }
 .partes label { grid-template-columns: 1fr 8rem; align-items: center; }
+
+/* Lembretes de WhatsApp (painel) */
+.lembrete .mensagem {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font: inherit;
+    background: var(--fundo);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0 12px;
+}
+.lembrete .acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.lembrete .avisado { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
