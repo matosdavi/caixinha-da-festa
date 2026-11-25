@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Cronograma · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('cronograma')}"></header>
+<main class="conteudo">
+    <h1>Cronograma</h1>
+    <p class="sutil">As etapas são calculadas a partir da data da festa. Mudou a data, o cronograma muda junto.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <form th:action="@{/painel/cronograma}" method="post" class="cartao formulario">
+        <h2>Data da festa</h2>
+        <p th:if="${visao.dataFesta == null}"><strong>Data em votação.</strong></p>
+        <label>Data
+            <input type="date" name="dataFesta" th:value="${visao.dataFesta}">
+            <span class="ajuda">Depois do último depósito: dezembro de 2027 ou o réveillon em janeiro.
+                Deixe em branco para voltar a "em votação".</span>
+        </label>
+        <button type="submit" class="botao">Salvar data</button>
+    </form>
+
+    <section class="cartao">
+        <h2>Etapas</h2>
+        <ol class="etapas">
+            <li th:each="e : ${visao.etapas}" th:classappend="${#strings.toLowerCase(e.estado.name())}">
+                <div class="etapa-topo">
+                    <span class="etapa-estado"
+                          th:text="${e.estado.name() == 'FEITO'} ? '✅ feito' : (${e.estado.name() == 'AGORA'} ? '👉 agora' : 'próxima')">próxima</span>
+                    <span class="sutil pequeno" th:text="${@fmt.mesAno(e.mes)}">maio de 2027</span>
+                </div>
+                <strong th:text="${e.titulo}">Procurar o lugar</strong>
+                <span class="pequeno" th:text="${e.detalhe}">3 opções…</span>
+
+                <div th:if="${e.reserva}" class="verificacao">
+                    <p class="aviso erro" th:if="${visao.semAluguel}">
+                        Cadastre o aluguel no <a th:href="@{/painel/orcamento}">orçamento</a> para conferir se dá para pagar.
+                    </p>
+                    <th:block th:each="v : ${visao.verificacao.stream().toList()}">
+                        <p class="aviso" th:if="${v.cobre()}"
+                           th:text="'Em ' + ${@fmt.mes(v.mes)} + ' a caixinha deve ter ' + ${@fmt.reais(v.previsto)}
+                                    + ' e o lugar custa ' + ${@fmt.reais(v.aluguel)} + '. ✅ Dá para pagar.'">✅</p>
+                        <div class="aviso erro" th:unless="${v.cobre()}">
+                            <p th:text="'⚠️ Em ' + ${@fmt.mes(v.mes)} + ' a caixinha deve ter ' + ${@fmt.reais(v.previsto)}
+                                    + ' e o lugar custa ' + ${@fmt.reais(v.aluguel)} + ': faltam ' + ${@fmt.reais(v.falta)} + '.'">⚠️</p>
+                            <p>O que dá para fazer:</p>
+                            <ul>
+                                <li>reservar um pouco mais tarde;</li>
+                                <li>ver se o anúncio aceita "pague uma parte agora";</li>
+                                <li>pedir adiantamento a quem puder;</li>
+                                <li>aumentar a margem de imprevistos no <a th:href="@{/painel/orcamento}">orçamento</a>.</li>
+                            </ul>
+                        </div>
+                    </th:block>
+                    <p class="ajuda">O lugar é pago inteiro na reserva. A conta usa as cotas de todos em dia até esse
+                        mês, mais rendimentos e doações, menos os gastos já feitos.</p>
+                </div>
+            </li>
+        </ol>
+        <p class="ajuda" th:if="${visao.dataFesta == null}">As outras etapas aparecem quando a data da festa for definida.</p>
+    </section>
+</main>
+</body>
+</html>

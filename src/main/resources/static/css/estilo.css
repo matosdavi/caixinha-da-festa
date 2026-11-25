@@ -255,3 +255,14 @@ input[type=url] { background: var(--campo); color: var(--texto); font: inherit; 
 }
 .lembrete .acoes { display: flex; flex-wrap: wrap; gap: 8px; }
 .lembrete .avisado { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+/* Cronograma (painel) */
+.etapas { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.etapas li { display: grid; gap: 4px; padding: 12px; border-radius: 8px; border: 1px solid var(--borda); }
+.etapas li.agora { border-width: 2px; border-color: var(--acao); }
+.etapas li.feito { opacity: .8; }
+.etapa-topo { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.etapa-estado { font-weight: 600; }
+.verificacao { margin-top: 8px; display: grid; gap: 8px; }
+.verificacao .aviso p { margin: 0 0 4px; }
+.verificacao ul { margin: 0; padding-left: 20px; }
