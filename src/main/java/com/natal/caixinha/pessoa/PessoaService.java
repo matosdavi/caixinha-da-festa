@@ -97,7 +97,13 @@ public class PessoaService {
         if (valor == null || valor.signum() < 0) {
             throw new RegraException("Informe o acréscimo: R$ 0 se o anfitrião não cobrar nada.");
         }
+        // mesmas regras dos outros valores: no máximo 2 casas e o limite do app (cabe no NUMERIC(12,2))
+        valor = com.natal.caixinha.comum.Dinheiro.naoNegativo(valor, "Acréscimo");
         Pessoa pessoa = buscar(pessoaId);
+        if (!pessoa.isPagante() || !pessoa.isAtivo()) {
+            // quem não paga cota fica fora da situação e do carnê: o acréscimo nunca seria cobrado
+            throw new RegraException("O acréscimo é só para quem paga cota e está ativo na caixinha.");
+        }
         Object[] datas = pessoas.datasDaCaixinha().get(0);
         LocalDate fechamento = datas[0] instanceof java.sql.Date d ? d.toLocalDate() : (LocalDate) datas[0];
         java.time.YearMonth inicio = java.time.YearMonth.parse(datas[1].toString().trim());

@@ -72,4 +72,28 @@ class AcrescimoTest {
         assertEquals(msg, assertThrows(RegraException.class,
                 () -> pessoas.definirAcrescimo(p.getId(), new BigDecimal("-1"))).getMessage());
     }
+
+    @Test
+    void soParaQuemPagaEstaAtivo() {
+        Pessoa bebe = pessoas.criar(new DadosPessoa("Bebê Novo", "", BigDecimal.ZERO, null,
+                LocalDate.of(2027, 3, 1), true, null));
+        RegraException e = assertThrows(RegraException.class,
+                () -> pessoas.definirAcrescimo(bebe.getId(), new BigDecimal("150")));
+        assertEquals("O acréscimo é só para quem paga cota e está ativo na caixinha.", e.getMessage());
+        assertNull(repositorio.findById(bebe.getId()).orElseThrow().getAcrescimo());
+
+        Pessoa saiu = pessoas.criar(new DadosPessoa("Saiu", "", BigDecimal.ONE, null,
+                LocalDate.of(2027, 3, 1), false, null));
+        assertThrows(RegraException.class, () -> pessoas.definirAcrescimo(saiu.getId(), new BigDecimal("150")));
+    }
+
+    @Test
+    void valorComMaisDeDuasCasasOuGiganteERecusado() {
+        Pessoa p = novaPessoa();
+        assertEquals("Acréscimo deve ter no máximo 2 casas decimais.", assertThrows(RegraException.class,
+                () -> pessoas.definirAcrescimo(p.getId(), new BigDecimal("100.005"))).getMessage());
+        assertThrows(RegraException.class,
+                () -> pessoas.definirAcrescimo(p.getId(), new BigDecimal("1000000000000")));
+        assertNull(repositorio.findById(p.getId()).orElseThrow().getAcrescimo());
+    }
 }

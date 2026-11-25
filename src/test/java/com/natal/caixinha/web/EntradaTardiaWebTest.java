@@ -111,4 +111,12 @@ class EntradaTardiaWebTest {
         mvc.perform(get("/painel/pessoas/" + seed + "/editar"))
                 .andExpect(content().string(not(containsString("Acréscimo cobrado pelo anfitrião"))));
     }
+
+    @Test
+    void formularioNaoMostraOCampoParaQuemNaoPaga() throws Exception {
+        Pessoa bebe = pessoaService.criar(new DadosPessoa("Bebê Novo", "", BigDecimal.ZERO, null,
+                LocalDate.of(2027, 3, 1), true, null));
+        mvc.perform(get("/painel/pessoas/" + bebe.getId() + "/editar"))
+                .andExpect(content().string(not(containsString("Acréscimo cobrado pelo anfitrião"))));
+    }
 }

@@ -161,7 +161,7 @@ public class PessoasController {
         model.addAttribute("temDependentes", id != null && !pessoas.dependentesDe(id).isEmpty());
         if (id != null) {
             Pessoa p = pessoas.buscar(id);
-            if (p.entrouTarde(caixinhas.configuracao().getDataFechamentoLista())) {
+            if (p.isPagante() && p.isAtivo() && p.entrouTarde(caixinhas.configuracao().getDataFechamentoLista())) {
                 model.addAttribute("pessoaTardia", p);
             }
         }
