@@ -170,6 +170,24 @@ public class CaixinhaService {
                 c.getChavePix(), c.getNomeRecebedor(), c.getCidadeRecebedor()));
     }
 
+    /**
+     * Data da festa: depois do último depósito, até o fim do segundo mês seguinte (dezembro ou o réveillon
+     * em janeiro). Nula volta para "em votação".
+     */
+    @Transactional
+    public void definirDataFesta(LocalDate data) {
+        Caixinha c = caixinhas.configuracao();
+        if (data != null) {
+            YearMonth mes = YearMonth.from(data);
+            if (!mes.isAfter(c.getMesFim()) || mes.isAfter(c.getMesFim().plusMonths(2))) {
+                throw new RegraException("A festa precisa ser depois do último depósito, em dezembro de "
+                        + c.getMesFim().plusMonths(1).getYear() + " ou em janeiro de "
+                        + c.getMesFim().plusMonths(2).getYear() + ".");
+            }
+        }
+        c.definirDataFesta(data);
+    }
+
     /** Fixa a cota estimada de agora como cota base. Só uma vez. */
     @Transactional
     public BigDecimal fixarCota() {

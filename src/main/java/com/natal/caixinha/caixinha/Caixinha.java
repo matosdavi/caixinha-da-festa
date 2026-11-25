@@ -63,6 +63,11 @@ public class Caixinha {
 
     public boolean isCotaFixada() { return cotaBase != null; }
 
+    /** Data da festa; nula volta para "em votação". A validação fica no CaixinhaService. */
+    void definirDataFesta(LocalDate data) {
+        this.dataFesta = data;
+    }
+
     /** Chave já normalizada; nome e cidade como o organizador digitou (a limpeza para o PIX é no BrCode). */
     void configurarPix(String chave, String nome, String cidade) {
         this.chavePix = chave;
