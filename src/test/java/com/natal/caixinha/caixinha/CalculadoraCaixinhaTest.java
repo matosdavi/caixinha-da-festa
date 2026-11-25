@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 import static com.natal.caixinha.caixinha.CalculadoraCaixinha.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -261,6 +262,66 @@ class CalculadoraCaixinhaTest {
             Situacao s = situacao(r("92.00"), r("0.00"), LocalDate.of(2027, 6, 3), JAN, NOV);
             assertEquals(5, s.mesesDeAtraso());
             assertEquals(Destaque.CONVERSAR_NO_PRIVADO, s.destaque());
+        }
+    }
+
+    @Nested
+    class ValorDeCadaMes {
+
+        static final BigDecimal COTA = new BigDecimal("92.00");
+
+        @Test
+        void semAcrescimoTodosOsMesesValemACota() {
+            List<BigDecimal> v = valoresDosMeses(COTA, null, null, JAN, NOV);
+            assertEquals(11, v.size());
+            v.forEach(x -> assertDinheiro("92.00", x));
+            assertEquals(v, valoresDosMeses(COTA, BigDecimal.ZERO, null, JAN, NOV));
+        }
+
+        @Test
+        void acrescimoDivididoNosMesesQueFaltam() {
+            List<BigDecimal> v = valoresDosMeses(COTA, r("300"), YearMonth.of(2027, 7), JAN, NOV);
+            for (int i = 0; i < 6; i++) {
+                assertDinheiro("92.00", v.get(i));
+            }
+            for (int i = 6; i < 11; i++) {
+                assertDinheiro("152.00", v.get(i));
+            }
+        }
+
+        @Test
+        void centavosQueSobramVaoParaOUltimoMes() {
+            List<BigDecimal> v = valoresDosMeses(COTA, r("100"), YearMonth.of(2027, 9), JAN, NOV);
+            assertDinheiro("125.33", v.get(8));
+            assertDinheiro("125.33", v.get(9));
+            assertDinheiro("125.34", v.get(10));
+        }
+
+        @Test
+        void acrescimoNoUltimoMesCaiTodoNele() {
+            List<BigDecimal> v = valoresDosMeses(COTA, r("100"), NOV, JAN, NOV);
+            assertDinheiro("192.00", v.get(10));
+            assertDinheiro("92.00", v.get(9));
+        }
+
+        @Test
+        void situacaoComAcrescimo() {
+            List<BigDecimal> v = valoresDosMeses(COTA, r("300"), YearMonth.of(2027, 7), JAN, NOV);
+            // 15/08: jan..jul fechados (92×6 + 152 = 704); guardou 92×7 = 644
+            Situacao s = situacao(v, r("644.00"), LocalDate.of(2027, 8, 15), JAN, NOV);
+            assertFalse(s.emDia());
+            assertEquals(1, s.mesesDeAtraso());
+            assertDinheiro("212.00", s.valorParaFicarEmDia());
+            assertDinheiro("152.00", s.faltaNoMes());
+            assertDinheiro("152.00", s.cota());
+            assertDinheiro("704.00", s.esperadoAteAgora());
+        }
+
+        @Test
+        void comValorConstanteDaOMesmoQueAContaAntiga() {
+            LocalDate hoje = LocalDate.of(2027, 3, 15);
+            assertEquals(situacao(COTA, r("100.00"), hoje, JAN, NOV),
+                    situacao(valoresDosMeses(COTA, null, null, JAN, NOV), r("100.00"), hoje, JAN, NOV));
         }
     }
 }

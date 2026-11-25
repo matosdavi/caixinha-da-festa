@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Todas as regras de cálculo da caixinha (seções 3.1 a 3.3 da especificação).
@@ -92,35 +94,84 @@ public final class CalculadoraCaixinha {
         return mes.isAfter(mesFim) ? mesFim : mes;
     }
 
-    /** Situação de uma pessoa em "hoje". */
+    /** Situação de uma pessoa em "hoje", com a mesma cota em todos os meses. */
     public static Situacao situacao(BigDecimal cotaDaPessoa, BigDecimal guardado, LocalDate hoje,
+                                    YearMonth mesInicio, YearMonth mesFim) {
+        return situacao(valoresDosMeses(cotaDaPessoa, null, null, mesInicio, mesFim), guardado, hoje,
+                mesInicio, mesFim);
+    }
+
+    /**
+     * Valor de cada mês da caixinha para uma pessoa: a cota mais a parcela do acréscimo de quem entrou tarde
+     * (seção 3.5). O acréscimo é dividido igualmente de {@code acrescimoDesde} até o último mês, em centavos
+     * para baixo, e os centavos que sobram vão para o último mês.
+     */
+    public static List<BigDecimal> valoresDosMeses(BigDecimal cotaDaPessoa, BigDecimal acrescimo,
+                                                   YearMonth acrescimoDesde, YearMonth mesInicio, YearMonth mesFim) {
+        int total = meses(mesInicio, mesFim);
+        BigDecimal cota = dinheiro(cotaDaPessoa);
+        List<BigDecimal> valores = new ArrayList<>();
+        for (int i = 0; i < total; i++) {
+            valores.add(cota);
+        }
+        if (acrescimo == null || acrescimo.signum() <= 0 || acrescimoDesde == null) {
+            return valores;
+        }
+        YearMonth desde = acrescimoDesde.isBefore(mesInicio) ? mesInicio
+                : acrescimoDesde.isAfter(mesFim) ? mesFim : acrescimoDesde;
+        int primeiro = (int) mesInicio.until(desde, ChronoUnit.MONTHS);
+        int parcelas = total - primeiro;
+        BigDecimal parcela = acrescimo.divide(BigDecimal.valueOf(parcelas), 2, RoundingMode.DOWN);
+        BigDecimal resto = acrescimo.subtract(parcela.multiply(BigDecimal.valueOf(parcelas)));
+        for (int i = primeiro; i < total; i++) {
+            BigDecimal extra = i == total - 1 ? parcela.add(resto) : parcela;
+            valores.set(i, dinheiro(valores.get(i).add(extra)));
+        }
+        return valores;
+    }
+
+    /** Situação de uma pessoa em "hoje", com o valor de cada mês (ver {@link #valoresDosMeses}). */
+    public static Situacao situacao(List<BigDecimal> valoresDosMeses, BigDecimal guardado, LocalDate hoje,
                                     YearMonth mesInicio, YearMonth mesFim) {
         int total = meses(mesInicio, mesFim);
         int fechados = mesesFechados(hoje, mesInicio, mesFim);
         YearMonth mesAtual = mesAtual(hoje, mesInicio, mesFim);
-        BigDecimal esperadoAteAgora = dinheiro(cotaDaPessoa.multiply(BigDecimal.valueOf(fechados)));
-        BigDecimal esperadoComMesAtual = dinheiro(cotaDaPessoa.multiply(BigDecimal.valueOf(Math.min(fechados + 1, total))));
+        int indiceAtual = (int) mesInicio.until(mesAtual, ChronoUnit.MONTHS);
+        BigDecimal valorDoMes = dinheiro(valoresDosMeses.get(indiceAtual));
+        BigDecimal esperadoAteAgora = soma(valoresDosMeses, fechados);
+        BigDecimal esperadoComMesAtual = soma(valoresDosMeses, Math.min(fechados + 1, total));
 
-        if (cotaDaPessoa.signum() <= 0) {
+        if (valoresDosMeses.stream().allMatch(v -> v.signum() <= 0)) {
             // peso 0 (ou cota ainda sem orçamento): sempre em dia, nada a pagar
-            return new Situacao(mesAtual, dinheiro(cotaDaPessoa), guardado, esperadoAteAgora, esperadoComMesAtual,
+            return new Situacao(mesAtual, valorDoMes, guardado, esperadoAteAgora, esperadoComMesAtual,
                     true, true, dinheiro(BigDecimal.ZERO), 0, dinheiro(BigDecimal.ZERO), Destaque.NENHUM);
         }
 
         boolean emDia = guardado.compareTo(esperadoAteAgora) >= 0;
         boolean cotaDoMesPaga = guardado.compareTo(esperadoComMesAtual) >= 0;
         BigDecimal paraFicarEmDia = dinheiro(esperadoComMesAtual.subtract(guardado).max(BigDecimal.ZERO));
-        // o que falta só da cota deste mês (o atraso de meses anteriores aparece em "para ficar em dia")
-        BigDecimal faltaNoMes = dinheiro(paraFicarEmDia.min(cotaDaPessoa));
+        // o que falta só do valor deste mês (o atraso de meses anteriores aparece em "para ficar em dia")
+        BigDecimal faltaNoMes = dinheiro(paraFicarEmDia.min(valorDoMes));
 
-        BigDecimal devendo = esperadoAteAgora.subtract(guardado);
-        int mesesDeAtraso = devendo.signum() > 0
-                ? devendo.divide(cotaDaPessoa, 0, RoundingMode.CEILING).intValueExact()
-                : 0;
+        // meses fechados cujo acumulado o guardado ainda não alcança
+        int mesesDeAtraso = 0;
+        for (int k = 1; k <= fechados; k++) {
+            if (soma(valoresDosMeses, k).compareTo(guardado) > 0) {
+                mesesDeAtraso++;
+            }
+        }
 
-        return new Situacao(mesAtual, dinheiro(cotaDaPessoa), guardado, esperadoAteAgora, esperadoComMesAtual,
+        return new Situacao(mesAtual, valorDoMes, guardado, esperadoAteAgora, esperadoComMesAtual,
                 emDia, cotaDoMesPaga, faltaNoMes, mesesDeAtraso, paraFicarEmDia,
                 destaque(mesesDeAtraso, hoje, mesFim));
+    }
+
+    private static BigDecimal soma(List<BigDecimal> valores, int quantos) {
+        BigDecimal soma = BigDecimal.ZERO;
+        for (int i = 0; i < quantos; i++) {
+            soma = soma.add(valores.get(i));
+        }
+        return dinheiro(soma);
     }
 
     // ---------------------------------------------------------------- 3.3 atraso em degraus
