@@ -51,6 +51,21 @@
         <button type="submit" class="botao">Salvar</button>
     </form>
 
+    <form th:if="${pessoaTardia}" th:action="@{/painel/pessoas/{id}/acrescimo(id=${id})}" method="post"
+          class="cartao formulario">
+        <h2>Acréscimo cobrado pelo anfitrião</h2>
+        <p class="ajuda">Esta pessoa entrou depois do fechamento da lista. Se o anfitrião cobrar a mais por ela,
+            informe o valor: ele é dividido nos meses que faltam, a partir do mês em que foi registrado.
+            Use R$ 0 quando não houver acréscimo.</p>
+        <label>Acréscimo (R$)
+            <input type="text" name="acrescimo" inputmode="decimal" autocomplete="off"
+                   th:value="${pessoaTardia.acrescimo != null} ? ${@fmt.campo(pessoaTardia.acrescimo)} : ''">
+        </label>
+        <p class="sutil" th:if="${pessoaTardia.acrescimoDesde != null}"
+           th:text="'Dividido desde ' + ${@fmt.mesAno(pessoaTardia.acrescimoDesde)} + '.'">Dividido desde março de 2027.</p>
+        <button type="submit" class="botao">Salvar acréscimo</button>
+    </form>
+
     <form th:if="${id != null}" th:action="@{/painel/pessoas/{id}/excluir(id=${id})}" method="post" class="zona-perigo"
           data-confirmar="Excluir esta pessoa? Use só para corrigir cadastro feito por engano.">
         <button type="submit" class="botao-link perigo">Excluir pessoa</button>

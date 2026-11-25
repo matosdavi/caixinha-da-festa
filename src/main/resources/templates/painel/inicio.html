@@ -14,6 +14,24 @@
 
     <div th:replace="~{fragmentos :: avisos}"></div>
 
+    <section class="cartao" th:unless="${#lists.isEmpty(entradasTardias)}">
+        <h2>Quem entrou depois do lugar pago</h2>
+        <p>Confirme com o anfitrião a lotação da casa e se há acréscimo por essa pessoa. O acréscimo é dividido
+            nos meses que faltam; use R$ 0 se não houver.</p>
+        <ul class="extrato">
+            <li th:each="p : ${entradasTardias}">
+                <form method="post" th:action="@{/painel/pessoas/{id}/acrescimo(id=${p.id})}" class="extrato-linha">
+                    <strong th:text="${p.nome}">Pessoa Nova</strong>
+                    <input type="hidden" name="voltar" value="inicio">
+                    <label class="sutil pequeno">Acréscimo (R$)
+                        <input type="text" name="acrescimo" inputmode="decimal" autocomplete="off" size="8" required>
+                    </label>
+                    <button type="submit" class="botao-secundario pequeno">Salvar</button>
+                </form>
+            </li>
+        </ul>
+    </section>
+
     <section class="cartao lembrete" th:if="${cartaoGrupo}">
         <h2 th:text="'Lembrete de ' + ${@fmt.mes(cartaoGrupo.mes)}">Lembrete de março</h2>
         <p class="ajuda">Mensagem para o grupo da família. Some depois que você enviar.</p>

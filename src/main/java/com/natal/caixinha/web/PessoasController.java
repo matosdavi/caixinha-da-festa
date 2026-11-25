@@ -159,6 +159,12 @@ public class PessoasController {
         model.addAttribute("id", id);
         model.addAttribute("responsaveis", pessoas.possiveisResponsaveis(id));
         model.addAttribute("temDependentes", id != null && !pessoas.dependentesDe(id).isEmpty());
+        if (id != null) {
+            Pessoa p = pessoas.buscar(id);
+            if (p.entrouTarde(caixinhas.configuracao().getDataFechamentoLista())) {
+                model.addAttribute("pessoaTardia", p);
+            }
+        }
         return "painel/pessoa-form";
     }
 

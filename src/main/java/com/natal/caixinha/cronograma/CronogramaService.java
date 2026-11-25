@@ -60,8 +60,17 @@ public class CronogramaService {
                     return Cronograma.verificar(c.getMesInicio(), e.mes(), r.cota().arrecadacaoMensal(), extras,
                             aluguel);
                 });
-        boolean lugarPago = aluguel.signum() > 0 && aluguelPago.compareTo(aluguel) >= 0;
-        return new Visao(c.getDataFesta(), etapas, verificacao, aluguel.signum() == 0, lugarPago);
+        return new Visao(c.getDataFesta(), etapas, verificacao, aluguel.signum() == 0, lugarPago(aluguel, aluguelPago));
+    }
+
+    /** Os gastos de aluguel já lançados cobrem o aluguel do orçamento (o lugar é pago inteiro na reserva). */
+    @Transactional(readOnly = true)
+    public boolean lugarPago() {
+        return lugarPago(aluguel(), lancamentos.somaPorTipoECategoria(TipoLancamento.GASTO, Categoria.ALUGUEL));
+    }
+
+    private static boolean lugarPago(BigDecimal aluguel, BigDecimal aluguelPago) {
+        return aluguel.signum() > 0 && aluguelPago.compareTo(aluguel) >= 0;
     }
 
     @Transactional(readOnly = true)

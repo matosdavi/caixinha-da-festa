@@ -15,10 +15,14 @@ public class PainelController {
     private final FamiliaService familias;
     private final LembreteService lembretes;
 
-    public PainelController(CaixinhaService caixinha, FamiliaService familias, LembreteService lembretes) {
+    private final com.natal.caixinha.cronograma.CronogramaService cronograma;
+
+    public PainelController(CaixinhaService caixinha, FamiliaService familias, LembreteService lembretes,
+                            com.natal.caixinha.cronograma.CronogramaService cronograma) {
         this.caixinha = caixinha;
         this.familias = familias;
         this.lembretes = lembretes;
+        this.cronograma = cronograma;
     }
 
     @GetMapping("/")
@@ -33,7 +37,13 @@ public class PainelController {
 
     @GetMapping("/painel")
     public String inicio(Model model) {
-        model.addAttribute("resumo", caixinha.resumo());
+        CaixinhaService.Resumo resumo = caixinha.resumo();
+        model.addAttribute("resumo", resumo);
+        // quem entrou depois do fechamento e ainda não teve o acréscimo confirmado, depois que o lugar foi pago
+        model.addAttribute("entradasTardias", !cronograma.lugarPago() ? java.util.List.of()
+                : resumo.situacoes().stream().map(CaixinhaService.SituacaoPessoa::pessoa)
+                .filter(p -> p.entrouTarde(resumo.caixinha().getDataFechamentoLista()) && p.getAcrescimo() == null)
+                .toList());
         model.addAttribute("familiaDe", familias.responsavelDasFamiliasComVariosPagantes());
         model.addAttribute("cartaoGrupo", lembretes.cartaoGrupo(Enderecos.base()).orElse(null));
         model.addAttribute("cartaoIndividual", lembretes.cartaoIndividual(Enderecos.base()).orElse(null));
