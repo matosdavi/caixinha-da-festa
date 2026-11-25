@@ -68,3 +68,10 @@ document.addEventListener('submit', (evento) => {
     setTimeout(() => form.querySelectorAll('button').forEach((b) => { b.disabled = true; }), 0);
     setTimeout(() => window.location.reload(), 1500);
 });
+
+// Caixas que recalculam a tela ao mudar (ex.: "outra pessoa vai assumir a vaga" na desistência).
+document.addEventListener('change', (evento) => {
+    if (evento.target.matches('[data-enviar-ao-mudar]')) {
+        evento.target.form.submit();
+    }
+});

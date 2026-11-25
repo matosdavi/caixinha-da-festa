@@ -29,6 +29,7 @@
             <div class="pessoa-cabecalho">
                 <h2 th:text="${p.nome}">Adulto 1</h2>
                 <a class="botao-secundario" th:href="@{/painel/pessoas/{id}/editar(id=${p.id})}">Editar</a>
+                <a class="botao-link" th:if="${p.ativo}" th:href="@{/painel/pessoas/{id}/desistencia(id=${p.id})}">Desistência</a>
             </div>
             <p class="etiquetas">
                 <span class="etiqueta" th:text="${p.peso}">Cota inteira</span>

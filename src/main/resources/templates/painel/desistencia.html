@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Desistência · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('pessoas')}"></header>
+<main class="conteudo">
+    <h1 th:text="'Desistência de ' + ${s.pessoa.nome}">Desistência de Adulto 2</h1>
+    <p class="sutil">Lança a devolução e tira a pessoa da caixinha. A cota fixada dos outros não muda.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <section class="cartao">
+        <h2>Sugestão</h2>
+        <p class="numero-grande" th:text="'Guardou ' + ${@fmt.reais(s.guardado)}">Guardou R$ 500,00</p>
+        <p th:if="${!s.lugarPago}">O lugar ainda não foi pago: a sugestão é devolver tudo o que a pessoa guardou.</p>
+        <p th:if="${s.lugarPago && s.assumeVaga}">Outra pessoa vai assumir a vaga: a sugestão é devolver tudo.</p>
+        <p th:if="${s.lugarPago && !s.assumeVaga}"
+           th:text="'O lugar já foi pago. A sugestão é devolver só a parte dela em comida, bebida, gelo, carvão e descartáveis: '
+                    + ${@fmt.reais(s.parteVariavel)} + '.'">O lugar já foi pago…</p>
+
+        <form method="get" th:if="${s.lugarPago}" class="formulario">
+            <label class="opcao">
+                <input type="checkbox" name="vaga" value="true" th:checked="${s.assumeVaga}" data-enviar-ao-mudar>
+                Outra pessoa vai assumir a vaga
+            </label>
+            <noscript><button type="submit" class="botao-secundario">Recalcular</button></noscript>
+        </form>
+    </section>
+
+    <form method="post" th:action="@{/painel/pessoas/{id}/desistencia(id=${s.pessoa.id})}" class="cartao formulario"
+          th:attr="data-confirmar='Lançar a devolução e tirar ' + ${s.pessoa.nome} + ' da caixinha? Não dá para desfazer pela tela.'">
+        <h2>Confirmar</h2>
+        <label>Devolução (R$)
+            <input type="text" name="valor" inputmode="decimal" autocomplete="off" th:value="${@fmt.campo(s.sugerido)}">
+            <span class="ajuda" th:text="'De R$ 0,00 até ' + ${@fmt.reais(s.guardado)} + '. Use 0 se não houver devolução.'">De R$ 0,00 até R$ 500,00.</span>
+        </label>
+        <label>Data
+            <input type="date" name="data" th:value="${hoje}">
+        </label>
+        <button type="submit" class="botao">Confirmar desistência</button>
+    </form>
+
+    <p><a th:href="@{/painel/pessoas}">Voltar para Pessoas</a></p>
+</main>
+</body>
+</html>
