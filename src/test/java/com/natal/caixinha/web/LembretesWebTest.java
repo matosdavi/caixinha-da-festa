@@ -71,6 +71,7 @@ class LembretesWebTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Lembrete de março")))
                 .andExpect(content().string(containsString("Fechamos *fevereiro*")))
+                .andExpect(content().string(containsString("name=\"mes\" value=\"2027-03\"")))
                 .andExpect(content().string(not(containsString("Quem ainda não pagou março"))));
     }
 

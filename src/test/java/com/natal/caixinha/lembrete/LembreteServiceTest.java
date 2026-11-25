@@ -50,6 +50,8 @@ class LembreteServiceTest {
     LinkService links;
     @Autowired
     AvisoMensalRepository avisos;
+    @Autowired
+    com.natal.caixinha.pessoa.PessoaService pessoaService;
 
     @BeforeEach
     void preparar() {
@@ -154,6 +156,23 @@ class LembreteServiceTest {
         CartaoIndividual c = lembretes.cartaoIndividual(BASE).orElseThrow();
         assertTrue(c.linhas().stream().noneMatch(l -> l.nome().equals("Adulto 2")));
         assertEquals(10, c.linhas().size());
+    }
+
+    @Test
+    void pagamentoParcialDoMesContinuaNaLista() {
+        relogio.para(LocalDate.of(2027, 3, 22));
+        depositar("Adulto 2", "234"); // jan e fev pagos, março só com 50
+        LinhaIndividual l = linha(lembretes.cartaoIndividual(BASE).orElseThrow(), "Adulto 2");
+        assertEquals(new BigDecimal("42.00"), l.valor());
+    }
+
+    @Test
+    void familiaQueNaoPagaNaoEntraNaLista() {
+        relogio.para(LocalDate.of(2027, 3, 22));
+        pessoaService.criar(new com.natal.caixinha.pessoa.DadosPessoa("Vovó", "", BigDecimal.ZERO, null,
+                LocalDate.of(2026, 11, 16), true, null));
+        assertTrue(lembretes.cartaoIndividual(BASE).orElseThrow().linhas().stream()
+                .noneMatch(l -> l.nome().equals("Vovó")));
     }
 
     @Test

@@ -57,7 +57,14 @@ document.querySelectorAll('[data-lancamento]').forEach((form) => {
 
 // Lembretes: o formulário abre o WhatsApp numa aba nova; esta aba recarrega para mostrar o aviso gravado.
 document.addEventListener('submit', (evento) => {
-    if (evento.target.matches('[data-recarregar]') && !evento.defaultPrevented) {
-        setTimeout(() => window.location.reload(), 1000);
+    const form = evento.target;
+    if (!form.matches('[data-recarregar]') || evento.defaultPrevented) return;
+    if (form.dataset.enviado) {
+        evento.preventDefault(); // toque duplo: o aviso já foi enviado
+        return;
     }
+    form.dataset.enviado = 'sim';
+    // desativa depois do envio (desativar antes cancelaria o próprio envio)
+    setTimeout(() => form.querySelectorAll('button').forEach((b) => { b.disabled = true; }), 0);
+    setTimeout(() => window.location.reload(), 1500);
 });
