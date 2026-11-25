@@ -116,4 +116,25 @@ class CarneTest {
             valor("0", t.falta());
         }
     }
+
+    @Test
+    void comAcrescimoCadaTalaoTemOValorDoMes() {
+        List<BigDecimal> valores = new java.util.ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            valores.add(new BigDecimal(i < 6 ? "92" : "152"));
+        }
+        List<Movimento> seis = new java.util.ArrayList<>();
+        for (int m = 1; m <= 7; m++) {
+            seis.add(mov(2027, m, 5, "92"));
+        }
+        List<Talao> carne = Carne.montar(List.of(new Membro(new BigDecimal("92"), seis, valores)), JAN, NOV);
+        // guardou 644: jan..jun (552) pagos; julho (152) tem 92 → falta 60; agosto em aberto
+        assertEquals(Estado.PAGO, carne.get(5).estado());
+        valor("92", carne.get(5).valor());
+        assertEquals(Estado.PARCIAL, carne.get(6).estado());
+        valor("152", carne.get(6).valor());
+        valor("60", carne.get(6).falta());
+        assertEquals(Estado.ABERTO, carne.get(7).estado());
+        valor("152", carne.get(7).falta());
+    }
 }

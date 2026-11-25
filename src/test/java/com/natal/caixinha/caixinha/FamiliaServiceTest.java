@@ -156,4 +156,21 @@ class FamiliaServiceTest {
         valor("92", partes.get(0).valor());
         valor("92", partes.get(1).valor());
     }
+
+    @Test
+    void acrescimoDeQuemEntrouTardeEntraNoValorDoMes() {
+        orcamentoDaSpec();
+        caixinha.fixarCota(); // em março a cota já está fixada: a pessoa nova não muda a dos outros
+        Pessoa nova = pessoaService.criar(new DadosPessoa("Nova", "", BigDecimal.ONE, null,
+                LocalDate.of(2027, 3, 1), true, null));
+        pessoaService.definirAcrescimo(nova.getId(), new BigDecimal("90"));
+        Familia f = familias.daFamilia(nova.getId());
+        // 90 dividido de março a novembro (9 meses) = 10 por mês; março vale 92 + 10
+        valor("102.00", f.cotaFamilia());
+        valor("90.00", f.acrescimo());
+        // deve jan e fev (184) + março (102)
+        valor("286.00", f.valorPix());
+        valor("102.00", f.carne().get(2).valor());
+        valor("92.00", f.carne().get(1).valor());
+    }
 }

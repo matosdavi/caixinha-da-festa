@@ -268,4 +268,14 @@ class PaginaPessoalCompletaTest {
                 .andExpect(status().isNotFound())
                 .andExpect(header().string("Cache-Control", containsString("no-store")));
     }
+
+    @Test
+    void mostraOAcrescimoDeQuemEntrouTarde() throws Exception {
+        orcamentoDaSpec();
+        Pessoa nova = pessoaService.criar(new com.natal.caixinha.pessoa.DadosPessoa("Nova", "", BigDecimal.ONE, null,
+                LocalDate.of(2027, 3, 1), true, null));
+        pessoaService.definirAcrescimo(nova.getId(), new BigDecimal("300"));
+        assertTrue(pagina(link("Nova")).contains("Inclui R$ 300,00 de acréscimo do lugar, dividido até novembro."));
+        assertFalse(pagina(link("Adulto 2")).contains("acréscimo do lugar"));
+    }
 }

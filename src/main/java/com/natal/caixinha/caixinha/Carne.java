@@ -19,8 +19,29 @@ public final class Carne {
     public record Movimento(LocalDate data, BigDecimal valor) {
     }
 
-    /** Um pagante da família: a cota mensal dele e os movimentos. */
-    public record Membro(BigDecimal cota, List<Movimento> movimentos) {
+    /**
+     * Um pagante da família: a cota mensal dele, os movimentos e, se o valor muda de mês para mês
+     * (acréscimo de quem entrou tarde), o valor de cada mês. Sem lista, todo mês vale a cota.
+     */
+    public record Membro(BigDecimal cota, List<Movimento> movimentos, List<BigDecimal> valores) {
+
+        public Membro(BigDecimal cota, List<Movimento> movimentos) {
+            this(cota, movimentos, null);
+        }
+
+        /** Valor do mês k (1 = primeiro mês). */
+        BigDecimal valorDoMes(int k) {
+            return valores == null ? cota : valores.get(k - 1);
+        }
+
+        /** Quanto a pessoa deve ter guardado ao fim do mês k. */
+        BigDecimal acumulado(int k) {
+            BigDecimal soma = BigDecimal.ZERO;
+            for (int i = 1; i <= k; i++) {
+                soma = soma.add(valorDoMes(i));
+            }
+            return soma;
+        }
     }
 
     public enum Estado { PAGO, PARCIAL, ABERTO }
@@ -40,7 +61,6 @@ public final class Carne {
 
     public static List<Talao> montar(List<Membro> membros, YearMonth inicio, YearMonth fim) {
         int total = CalculadoraCaixinha.meses(inicio, fim);
-        BigDecimal valor = dinheiro(membros.stream().map(Membro::cota).reduce(BigDecimal.ZERO, BigDecimal::add));
         List<BigDecimal> guardados = membros.stream()
                 .map(m -> m.movimentos().stream().map(Movimento::valor).reduce(BigDecimal.ZERO, BigDecimal::add))
                 .toList();
@@ -48,15 +68,18 @@ public final class Carne {
         List<Talao> taloes = new ArrayList<>();
         for (int k = 1; k <= total; k++) {
             YearMonth mes = inicio.plusMonths(k - 1);
+            final int mesK = k;
+            BigDecimal valor = dinheiro(membros.stream().map(m -> m.valorDoMes(mesK))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
             if (valor.signum() <= 0) {
                 taloes.add(new Talao(mes, k, valor, Estado.ABERTO, dinheiro(BigDecimal.ZERO), null));
                 continue;
             }
             BigDecimal falta = BigDecimal.ZERO;
             for (int i = 0; i < membros.size(); i++) {
-                BigDecimal cota = membros.get(i).cota();
-                BigDecimal devendo = cota.multiply(BigDecimal.valueOf(k)).subtract(guardados.get(i)).max(BigDecimal.ZERO);
-                falta = falta.add(devendo.min(cota));
+                Membro m = membros.get(i);
+                BigDecimal devendo = m.acumulado(k).subtract(guardados.get(i)).max(BigDecimal.ZERO);
+                falta = falta.add(devendo.min(m.valorDoMes(k)));
             }
             falta = dinheiro(falta);
             Estado estado = falta.signum() == 0 ? Estado.PAGO
@@ -67,11 +90,11 @@ public final class Carne {
         return taloes;
     }
 
-    /** O mais tarde, entre os membros, do último momento em que a soma corrente alcançou k cotas. */
+    /** O mais tarde, entre os membros, do último momento em que a soma corrente alcançou o acumulado do mês k. */
     private static LocalDate dataDoCarimbo(List<Membro> membros, int k) {
         LocalDate data = null;
         for (Membro m : membros) {
-            BigDecimal alvo = m.cota().multiply(BigDecimal.valueOf(k));
+            BigDecimal alvo = m.acumulado(k);
             BigDecimal soma = BigDecimal.ZERO;
             LocalDate alcancou = null;
             for (Movimento mov : m.movimentos()) {

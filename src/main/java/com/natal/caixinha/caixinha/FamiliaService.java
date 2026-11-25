@@ -33,15 +33,16 @@ public class FamiliaService {
 
     /**
      * @param pagantes   responsável (se paga) e dependentes de peso maior que zero, responsável primeiro
-     * @param cotaFamilia soma das cotas mensais dos pagantes
+     * @param cotaFamilia valor do mês atual somado entre os pagantes (cota + parcela de acréscimo)
      * @param valorPix   quanto a família precisa depositar para ficar em dia, já com o mês atual
      * @param numeroMes  posição do mês atual na caixinha (1 = primeiro mês)
      * @param extrato    depósitos, créditos e devoluções da família, do mais novo ao mais antigo
+     * @param acrescimo  soma dos acréscimos de quem entrou tarde (0 se ninguém)
      */
     public record Familia(Pessoa responsavel, List<Pessoa> dependentes, List<Membro> pagantes,
                           BigDecimal cotaFamilia, BigDecimal valorPix, EstadoDoMes estado, boolean cotaFixada,
                           YearMonth mesAtual, int numeroMes, int totalMeses, List<Carne.Talao> carne,
-                          List<Lancamento> extrato) {
+                          List<Lancamento> extrato, BigDecimal acrescimo) {
     }
 
     private final CaixinhaRepository caixinhas;
@@ -79,6 +80,7 @@ public class FamiliaService {
         List<Carne.Membro> doCarne = new ArrayList<>();
         BigDecimal cotaFamilia = ZERO;
         BigDecimal valorPix = ZERO;
+        BigDecimal acrescimo = ZERO;
         boolean todosEmDia = true;
         boolean todosPagaramOMes = true;
         for (Pessoa p : todos) {
@@ -91,10 +93,15 @@ public class FamiliaService {
                     .map(l -> new Carne.Movimento(l.getData(), l.valorNoSaldo()))
                     .toList();
             BigDecimal guardado = seus.stream().map(Carne.Movimento::valor).reduce(ZERO, BigDecimal::add);
-            Situacao s = CalculadoraCaixinha.situacao(cotaDaPessoa, guardado, hoje, c.getMesInicio(), c.getMesFim());
+            List<BigDecimal> valores = CalculadoraCaixinha.valoresDosMeses(cotaDaPessoa, p.getAcrescimo(),
+                    p.getAcrescimoDesde(), c.getMesInicio(), c.getMesFim());
+            Situacao s = CalculadoraCaixinha.situacao(valores, guardado, hoje, c.getMesInicio(), c.getMesFim());
             pagantes.add(new Membro(p, s));
-            doCarne.add(new Carne.Membro(cotaDaPessoa, seus));
-            cotaFamilia = cotaFamilia.add(cotaDaPessoa);
+            doCarne.add(new Carne.Membro(cotaDaPessoa, seus, valores));
+            cotaFamilia = cotaFamilia.add(s.cota());
+            if (p.getAcrescimo() != null) {
+                acrescimo = acrescimo.add(p.getAcrescimo());
+            }
             valorPix = valorPix.add(s.valorParaFicarEmDia());
             todosEmDia &= s.emDia();
             todosPagaramOMes &= s.cotaDoMesPaga();
@@ -124,7 +131,7 @@ public class FamiliaService {
 
         return new Familia(responsavel, dependentes, pagantes, cotaFamilia, CalculadoraCaixinha.dinheiro(valorPix),
                 estado, cota.fixada(), mesAtual, numeroMes, CalculadoraCaixinha.meses(c.getMesInicio(), c.getMesFim()),
-                carne, extrato);
+                carne, extrato, CalculadoraCaixinha.dinheiro(acrescimo));
     }
 
     /**

@@ -126,7 +126,8 @@ public class CaixinhaService {
                 continue;
             }
             Situacao s = CalculadoraCaixinha.situacao(
-                    CalculadoraCaixinha.cotaDaPessoa(cota.cota(), p.getPeso()),
+                    CalculadoraCaixinha.valoresDosMeses(CalculadoraCaixinha.cotaDaPessoa(cota.cota(), p.getPeso()),
+                            p.getAcrescimo(), p.getAcrescimoDesde(), c.getMesInicio(), c.getMesFim()),
                     guardadoPorPessoa.getOrDefault(p.getId(), ZERO), hoje, c.getMesInicio(), c.getMesFim());
             situacoes.add(new SituacaoPessoa(p, s));
             if (s.emDia()) {
