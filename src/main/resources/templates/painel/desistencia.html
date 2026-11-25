@@ -15,7 +15,7 @@
         <p th:if="${!s.lugarPago}">O lugar ainda não foi pago: a sugestão é devolver tudo o que a pessoa guardou.</p>
         <p th:if="${s.lugarPago && s.assumeVaga}">Outra pessoa vai assumir a vaga: a sugestão é devolver tudo.</p>
         <p th:if="${s.lugarPago && !s.assumeVaga}"
-           th:text="'O lugar já foi pago. A sugestão é devolver só a parte dela em comida, bebida, gelo, carvão e descartáveis: '
+           th:text="'O lugar já foi pago. A sugestão é devolver só a parte da pessoa em comida, bebida, gelo, carvão e descartáveis: '
                     + ${@fmt.reais(s.parteVariavel)} + '.'">O lugar já foi pago…</p>
 
         <form method="get" th:if="${s.lugarPago}" class="formulario">
