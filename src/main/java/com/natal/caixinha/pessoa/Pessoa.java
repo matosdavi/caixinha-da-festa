@@ -38,6 +38,14 @@ public class Pessoa {
     @Column(length = 500)
     private String observacao;
 
+    /** Acréscimo do anfitrião para quem entrou tarde. Nulo = ainda não confirmado; 0 = sem acréscimo. */
+    @Column(precision = 12, scale = 2)
+    private BigDecimal acrescimo;
+
+    /** Mês em que a divisão do acréscimo começa (vai até o último mês da caixinha). */
+    @Column(name = "acrescimo_desde", length = 7)
+    private java.time.YearMonth acrescimoDesde;
+
     protected Pessoa() {
         // exigido pelo JPA
     }
@@ -56,6 +64,18 @@ public class Pessoa {
     public LocalDate getDataEntrada() { return dataEntrada; }
     public boolean isAtivo() { return ativo; }
     public String getObservacao() { return observacao; }
+    public BigDecimal getAcrescimo() { return acrescimo; }
+    public java.time.YearMonth getAcrescimoDesde() { return acrescimoDesde; }
+
+    void setAcrescimo(BigDecimal acrescimo, java.time.YearMonth desde) {
+        this.acrescimo = acrescimo;
+        this.acrescimoDesde = desde;
+    }
+
+    /** Entrou depois do fechamento da lista (seção 3.5 da spec). */
+    public boolean entrouTarde(LocalDate fechamentoLista) {
+        return dataEntrada.isAfter(fechamentoLista);
+    }
 
     void setNome(String nome) { this.nome = nome; }
     void setTelefone(String telefone) { this.telefone = telefone; }

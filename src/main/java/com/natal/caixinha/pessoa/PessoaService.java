@@ -87,6 +87,39 @@ public class PessoaService {
         return pessoa;
     }
 
+    /**
+     * Acréscimo do anfitrião para quem entrou depois do fechamento da lista (seção 3.5 da spec).
+     * É dividido nos meses que faltam: a divisão começa no mês em que o valor passa a ser maior que zero
+     * (limitado aos meses da caixinha) e não muda quando o valor é corrigido. Zero confirma "sem acréscimo".
+     */
+    @Transactional
+    public void definirAcrescimo(Long pessoaId, BigDecimal valor) {
+        if (valor == null || valor.signum() < 0) {
+            throw new RegraException("Informe o acréscimo: R$ 0 se o anfitrião não cobrar nada.");
+        }
+        Pessoa pessoa = buscar(pessoaId);
+        Object[] datas = pessoas.datasDaCaixinha().get(0);
+        LocalDate fechamento = datas[0] instanceof java.sql.Date d ? d.toLocalDate() : (LocalDate) datas[0];
+        java.time.YearMonth inicio = java.time.YearMonth.parse(datas[1].toString().trim());
+        java.time.YearMonth fim = java.time.YearMonth.parse(datas[2].toString().trim());
+        if (!pessoa.entrouTarde(fechamento)) {
+            throw new RegraException("O acréscimo é só para quem entrou depois do fechamento da lista.");
+        }
+        BigDecimal novo = valor.setScale(2, java.math.RoundingMode.HALF_UP);
+        java.time.YearMonth desde = null;
+        if (novo.signum() > 0) {
+            boolean jaTinha = pessoa.getAcrescimo() != null && pessoa.getAcrescimo().signum() > 0
+                    && pessoa.getAcrescimoDesde() != null;
+            if (jaTinha) {
+                desde = pessoa.getAcrescimoDesde();
+            } else {
+                java.time.YearMonth hoje = java.time.YearMonth.now(clock);
+                desde = hoje.isBefore(inicio) ? inicio : hoje.isAfter(fim) ? fim : hoje;
+            }
+        }
+        pessoa.setAcrescimo(novo, desde);
+    }
+
     /** Excluir só serve para corrigir cadastro. Quem já tem lançamentos sai pela desistência. */
     @Transactional
     public void excluir(Long id) {

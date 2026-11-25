@@ -19,4 +19,8 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
     /** Consulta direta na tabela, para o pacote pessoa não depender de lancamento. */
     @Query(value = "select count(*) > 0 from lancamento where pessoa_id = :id", nativeQuery = true)
     boolean temLancamentos(Long id);
+
+    /** [data_fechamento_lista, mes_inicio, mes_fim] da caixinha; consulta direta para o pacote pessoa não depender de caixinha. */
+    @Query(value = "select data_fechamento_lista, mes_inicio, mes_fim from caixinha order by id limit 1", nativeQuery = true)
+    List<Object[]> datasDaCaixinha();
 }

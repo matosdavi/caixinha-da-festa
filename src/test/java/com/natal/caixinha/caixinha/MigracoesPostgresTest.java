@@ -55,7 +55,7 @@ class MigracoesPostgresTest {
     @Test
     void flywayAplicaSchemaESeedNoPostgres() {
         assertTrue(jdbc.queryForObject("select version()", String.class).startsWith("PostgreSQL"));
-        assertEquals(2, jdbc.queryForObject(
+        assertEquals(3, jdbc.queryForObject(
                 "select count(*) from flyway_schema_history where success", Integer.class));
         assertEquals(13, pessoas.count());
         assertEquals(0, new BigDecimal("11.50").compareTo(
