@@ -50,16 +50,19 @@ public class LembreteService {
     private final PessoaRepository pessoas;
     private final LinkService links;
     private final AvisoMensalRepository avisos;
+    private final com.natal.caixinha.cronograma.CronogramaService cronograma;
     private final Clock clock;
 
     public LembreteService(CaixinhaRepository caixinhas, CaixinhaService caixinha, FamiliaService familias,
-                           PessoaRepository pessoas, LinkService links, AvisoMensalRepository avisos, Clock clock) {
+                           PessoaRepository pessoas, LinkService links, AvisoMensalRepository avisos,
+                           com.natal.caixinha.cronograma.CronogramaService cronograma, Clock clock) {
         this.caixinhas = caixinhas;
         this.caixinha = caixinha;
         this.familias = familias;
         this.pessoas = pessoas;
         this.links = links;
         this.avisos = avisos;
+        this.cronograma = cronograma;
         this.clock = clock;
     }
 
@@ -97,8 +100,11 @@ public class LembreteService {
         CaixinhaService.Resumo r = caixinha.resumo();
         YearMonth fechado = mes.equals(c.getMesInicio()) ? null : mes.minusMonths(1);
         YearMonth novo = mes.isAfter(c.getMesFim()) ? null : mes;
+        var proxima = cronograma.proximaEtapa();
         return MensagensLembrete.grupo(new MensagensLembrete.Grupo(fechado, novo, r.arrecadado(), r.cota().meta(),
-                r.percentual(), r.emDia(), r.pagantes(), r.cota().cota()));
+                r.percentual(), r.emDia(), r.pagantes(), r.cota().cota(),
+                proxima.map(com.natal.caixinha.cronograma.Cronograma.Etapa::frase).orElse(null),
+                proxima.map(com.natal.caixinha.cronograma.Cronograma.Etapa::mes).orElse(null)));
     }
 
     // ------------------------------------------------------------ individual

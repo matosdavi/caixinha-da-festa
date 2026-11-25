@@ -91,6 +91,14 @@ class PaginaPessoalCompletaTest {
     }
 
     @Test
+    void mostraAProximaEtapaQuandoHaDataDaFesta() throws Exception {
+        orcamentoDaSpec();
+        assertFalse(pagina(link("Adulto 1")).contains("Próxima etapa"), "sem data, só etapas já feitas");
+        caixinha.definirDataFesta(LocalDate.of(2027, 12, 20));
+        assertTrue(pagina(link("Adulto 1")).contains("Próxima etapa: procurar o lugar, em maio."));
+    }
+
+    @Test
     void pendente() throws Exception {
         orcamentoDaSpec();
         pix();

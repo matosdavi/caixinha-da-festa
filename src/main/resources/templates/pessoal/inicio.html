@@ -104,6 +104,8 @@
         <p class="num" th:text="${resumo.percentual} + '% da meta de ' + ${@fmt.reais(resumo.cota.meta)} + '. '
                 + ${resumo.emDia} + ' de ' + ${resumo.pagantes()} + ' pagantes estão em dia.'">24% da meta de R$ 11.638,00. 10 de 12 pagantes estão em dia.</p>
         <p class="festa" th:text="${caixinha.dataFesta != null} ? 'Data da festa: ' + ${@fmt.data(caixinha.dataFesta)} : 'Data da festa: em votação'">Data da festa: em votação</p>
+        <p class="festa" th:if="${proximaEtapa}"
+           th:text="'Próxima etapa: ' + ${proximaEtapa.frase()} + ', em ' + ${@fmt.mes(proximaEtapa.mes)} + '.'">Próxima etapa: procurar o lugar, em maio.</p>
     </div>
 
     <a class="lembrete" th:href="@{/c/{t}/lembrete.ics(t=${token})}">

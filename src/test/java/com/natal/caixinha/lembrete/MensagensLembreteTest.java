@@ -77,4 +77,12 @@ class MensagensLembreteTest {
                 r("276.00"), 1, LINK));
         assertFalse(texto.contains("Para ficar em dia"), texto);
     }
+
+    @Test
+    void grupoTerminaComAProximaEtapa() {
+        String texto = MensagensLembrete.grupo(new Grupo(JAN, FEV, r("1012.00"), r("11440.00"), 9, 10, 11,
+                r("92.00"), "procurar o lugar", YearMonth.of(2027, 5)));
+        assertTrue(texto.endsWith("no seu link pessoal.\n📅 Próxima etapa: *procurar o lugar* (maio)"), texto);
+    }
+
 }

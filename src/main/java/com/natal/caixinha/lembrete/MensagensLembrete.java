@@ -18,9 +18,16 @@ public final class MensagensLembrete {
      *
      * @param mesFechado mês que acabou de fechar; nulo no primeiro mês da caixinha
      * @param mesNovo    mês que começou; nulo no mês seguinte ao último
+     * @param proximaEtapa etapa do cronograma no meio da frase ("procurar o lugar"); nula se não houver
      */
     public record Grupo(YearMonth mesFechado, YearMonth mesNovo, BigDecimal arrecadado, BigDecimal meta,
-                        int percentual, int emDia, int pagantes, BigDecimal cota) {
+                        int percentual, int emDia, int pagantes, BigDecimal cota, String proximaEtapa,
+                        YearMonth mesProximaEtapa) {
+
+        public Grupo(YearMonth mesFechado, YearMonth mesNovo, BigDecimal arrecadado, BigDecimal meta,
+                     int percentual, int emDia, int pagantes, BigDecimal cota) {
+            this(mesFechado, mesNovo, arrecadado, meta, percentual, emDia, pagantes, cota, null, null);
+        }
     }
 
     /**
@@ -53,6 +60,10 @@ public final class MensagensLembrete {
         } else {
             texto.append("\n*").append(maiuscula(mes(g.mesNovo()))).append("* começou");
             texto.append(temCota ? ": " + frasesDaCota(g.cota()) : ".");
+        }
+        if (g.proximaEtapa() != null && g.mesProximaEtapa() != null) {
+            texto.append("\n📅 Próxima etapa: *").append(g.proximaEtapa()).append("* (")
+                    .append(mes(g.mesProximaEtapa())).append(")");
         }
         return texto.toString();
     }

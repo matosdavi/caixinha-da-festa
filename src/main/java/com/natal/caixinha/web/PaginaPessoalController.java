@@ -50,15 +50,18 @@ public class PaginaPessoalController {
     private final CaixinhaRepository caixinhas;
     private final Formato fmt;
     private final Clock clock;
+    private final com.natal.caixinha.cronograma.CronogramaService cronograma;
 
     public PaginaPessoalController(LinkService links, FamiliaService familias, CaixinhaService caixinha,
-                                   CaixinhaRepository caixinhas, Formato fmt, Clock clock) {
+                                   CaixinhaRepository caixinhas, Formato fmt, Clock clock,
+                                   com.natal.caixinha.cronograma.CronogramaService cronograma) {
         this.links = links;
         this.familias = familias;
         this.caixinha = caixinha;
         this.caixinhas = caixinhas;
         this.fmt = fmt;
         this.clock = clock;
+        this.cronograma = cronograma;
     }
 
     @GetMapping("/c/{token}")
@@ -84,6 +87,7 @@ public class PaginaPessoalController {
         model.addAttribute("parcial", parcial(f));
         model.addAttribute("resumo", caixinha.resumo());
         model.addAttribute("token", token);
+        model.addAttribute("proximaEtapa", cronograma.proximaEtapa().orElse(null));
 
         boolean temPix = f.valorPix().signum() > 0 && recebedor.isPresent();
         model.addAttribute("semChave", f.valorPix().signum() > 0 && recebedor.isEmpty());
