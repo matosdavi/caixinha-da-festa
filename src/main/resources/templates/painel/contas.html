@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Contas · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('contas')}"></header>
+<main class="conteudo">
+    <h1>Prestação de contas</h1>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <p class="aviso" th:unless="${v.disponivel}">
+        A prestação de contas abre depois da festa<span th:if="${v.dataFesta != null}"
+            th:text="' (' + ${@fmt.data(v.dataFesta)} + ')'"> (20/12/2027)</span>.
+        <span th:if="${v.dataFesta == null}">Defina a data no <a th:href="@{/painel/cronograma}">Cronograma</a>.</span>
+    </p>
+
+    <th:block th:if="${v.disponivel}">
+        <section class="cartao">
+            <h2>Resumo</h2>
+            <dl class="resumo">
+                <dt>Entradas</dt>
+                <dd th:text="${@fmt.reais(v.entradas)}">R$ 1.518,00</dd>
+                <th:block th:each="g : ${v.gastosPorCategoria}">
+                    <dt th:text="${g.key.rotulo}">Comida</dt>
+                    <dd th:text="'− ' + ${@fmt.reais(g.value)}">− R$ 1.000,00</dd>
+                </th:block>
+                <dt th:if="${v.devolucoes.signum() > 0}">Devoluções (desistências)</dt>
+                <dd th:if="${v.devolucoes.signum() > 0}" th:text="'− ' + ${@fmt.reais(v.devolucoes)}">− R$ 0,00</dd>
+                <dt>Sobra final</dt>
+                <dd><strong th:text="${@fmt.reais(v.sobra)}">R$ 518,00</strong></dd>
+            </dl>
+            <p class="ajuda" th:text="'As famílias escolhem até ' + ${@fmt.data(v.prazo)} + '. Quem não escolher fica com crédito para ' + ${anoSeguinte} + '.'">prazo</p>
+            <p class="aviso erro" th:if="${v.sobra.signum() <= 0}">Não sobrou dinheiro: não há partes para devolver.</p>
+        </section>
+
+        <section class="cartao" th:unless="${#lists.isEmpty(v.linhas)}">
+            <h2>Partes</h2>
+            <p class="ajuda" th:unless="${v.prazoPassou}">Os lançamentos ficam liberados depois do prazo, quando as escolhas não mudam mais.</p>
+            <ul class="extrato">
+                <li th:each="l : ${v.linhas}">
+                    <div class="extrato-linha">
+                        <div>
+                            <strong th:text="${l.pessoa.nome}">Adulto 2</strong>
+                            <span class="sutil pequeno" th:text="'guardou ' + ${@fmt.reais(l.guardado)}">guardou R$ 1.012,00</span>
+                            <span class="pequeno" th:text="${l.efetiva.name() == 'DEVOLVER'} ? 'Devolver' : ('Crédito para ' + ${anoSeguinte} + (${l.escolha == null} ? ' (não escolheu)' : ''))">Crédito</span>
+                        </div>
+                        <span class="valor" th:text="${@fmt.reais(l.parte)}">R$ 345,34</span>
+                    </div>
+                    <div class="acoes" th:unless="${l.lancado}">
+                        <form method="post" th:action="@{/painel/contas/{id}/escolha(id=${l.pessoa.id})}">
+                            <input type="hidden" name="opcao" th:value="${l.efetiva.name() == 'DEVOLVER'} ? 'CREDITO' : 'DEVOLVER'">
+                            <button type="submit" class="botao-link pequeno"
+                                    th:text="${l.efetiva.name() == 'DEVOLVER'} ? 'Trocar para crédito' : 'Trocar para devolver'">Trocar</button>
+                        </form>
+                        <form method="post" th:if="${v.prazoPassou && l.parte.signum() > 0}"
+                              th:action="@{/painel/contas/{id}/lancar(id=${l.pessoa.id})}"
+                              th:attr="data-confirmar='Lançar ' + ${@fmt.reais(l.parte)} + ' de ' + ${l.pessoa.nome} + '?'">
+                            <button type="submit" class="botao-secundario pequeno">Lançar</button>
+                        </form>
+                    </div>
+                    <span class="pequeno" th:if="${l.lancado}">✅ lançado</span>
+                </li>
+            </ul>
+            <p><a class="botao-secundario" th:href="@{/painel/contas/creditos.csv}">Exportar créditos (CSV)</a></p>
+        </section>
+
+        <section class="cartao">
+            <h2>Saldo final</h2>
+            <p class="numero-grande" th:if="${v.saldo.signum() == 0}">✅ Contas fechadas: saldo R$ 0,00</p>
+            <p th:unless="${v.saldo.signum() == 0}"
+               th:text="'Saldo: ' + ${@fmt.reais(v.saldo)}  + '. Lance as partes até chegar a R$ 0,00.'">Saldo</p>
+        </section>
+    </th:block>
+</main>
+</body>
+</html>

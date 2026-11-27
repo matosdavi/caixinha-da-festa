@@ -18,6 +18,39 @@
     <h1 class="saudacao" th:text="'Oi, ' + ${f.responsavel.nome} + '!'">Oi, Ana!</h1>
     <p class="quem" th:text="${quem}">Esta página é sua e de Theo.</p>
 
+    <p class="aviso" th:if="${sucesso}" th:text="${sucesso}" role="status"></p>
+    <p class="aviso erro" th:if="${erro}" th:text="${erro}" role="alert"></p>
+
+    <!-- Depois da festa: prestação de contas e a escolha da sobra (seção 3.7) -->
+    <section class="contas papel" th:if="${contas}" aria-label="Prestação de contas">
+        <h2>Prestação de contas 🎉</h2>
+        <dl class="resumo">
+            <dt>Arrecadado</dt>
+            <dd th:text="${@fmt.reais(contas.entradas)}">R$ 11.700,00</dd>
+            <th:block th:each="g : ${contas.gastosPorCategoria}">
+                <dt th:text="${g.key.rotulo}">Comida</dt>
+                <dd th:text="'− ' + ${@fmt.reais(g.value)}">− R$ 4.200,00</dd>
+            </th:block>
+            <dt>Sobrou</dt>
+            <dd><strong th:text="${@fmt.reais(contas.sobra)}">R$ 518,00</strong></dd>
+        </dl>
+        <th:block th:if="${sobraDaFamilia.parte.signum() > 0}">
+            <p class="grande" th:text="'A parte da sua família: ' + ${@fmt.reais(sobraDaFamilia.parte)}">A parte da sua família: R$ 345,34</p>
+            <p th:if="${sobraDaFamilia.escolha != null}"
+               th:text="'Sua escolha: ' + (${sobraDaFamilia.escolha.name() == 'DEVOLVER'} ? 'receber de volta.' : 'deixar para o ano que vem.')">Sua escolha</p>
+            <th:block th:if="${sobraDaFamilia.podeEscolher}">
+                <p th:text="'Escolha até ' + ${@fmt.data(contas.prazo)} + '. Se não escolher, a parte fica para o ano que vem.'">Escolha até</p>
+                <form method="post" th:action="@{/c/{t}/sobra(t=${token})}" class="escolha-sobra">
+                    <button type="submit" name="opcao" value="DEVOLVER" class="botao">Quero receber de volta</button>
+                    <button type="submit" name="opcao" value="CREDITO" class="botao-secundario">Deixar para o ano que vem</button>
+                </form>
+            </th:block>
+            <p th:if="${!sobraDaFamilia.podeEscolher && sobraDaFamilia.escolha == null}">
+                O prazo para escolher acabou: a parte fica para o ano que vem.
+            </p>
+        </th:block>
+    </section>
+
     <!-- O talão do mês: papel, canhoto picotado e borda serrilhada de notinha -->
     <section class="talao papel" aria-label="Cota deste mês" th:if="${!#lists.isEmpty(f.pagantes)}">
         <div class="canhoto">

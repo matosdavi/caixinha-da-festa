@@ -51,10 +51,12 @@ public class PaginaPessoalController {
     private final Formato fmt;
     private final Clock clock;
     private final com.natal.caixinha.cronograma.CronogramaService cronograma;
+    private final com.natal.caixinha.prestacao.PrestacaoService prestacao;
 
     public PaginaPessoalController(LinkService links, FamiliaService familias, CaixinhaService caixinha,
                                    CaixinhaRepository caixinhas, Formato fmt, Clock clock,
-                                   com.natal.caixinha.cronograma.CronogramaService cronograma) {
+                                   com.natal.caixinha.cronograma.CronogramaService cronograma,
+                                   com.natal.caixinha.prestacao.PrestacaoService prestacao) {
         this.links = links;
         this.familias = familias;
         this.caixinha = caixinha;
@@ -62,6 +64,33 @@ public class PaginaPessoalController {
         this.fmt = fmt;
         this.clock = clock;
         this.cronograma = cronograma;
+        this.prestacao = prestacao;
+    }
+
+    /** A única ação do link pessoal (seção 3.7): a família escolhe o que fazer com a parte da sobra. */
+    @org.springframework.web.bind.annotation.PostMapping("/c/{token}/sobra")
+    public String escolherSobra(@PathVariable String token,
+                                @org.springframework.web.bind.annotation.RequestParam(required = false)
+                                com.natal.caixinha.prestacao.OpcaoSobra opcao,
+                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirect,
+                                HttpServletResponse resposta) {
+        Optional<LinkAcesso> link = links.abrir(token);
+        if (link.isEmpty()) {
+            resposta.setStatus(HttpStatus.NOT_FOUND.value());
+            return "pessoal/link-invalido";
+        }
+        try {
+            if (opcao == null) {
+                throw new com.natal.caixinha.comum.RegraException("Escolha uma das duas opções.");
+            }
+            prestacao.escolherPelaFamilia(link.get().getPessoa().getId(), opcao);
+            redirect.addFlashAttribute("sucesso", "Escolha registrada: "
+                    + (opcao == com.natal.caixinha.prestacao.OpcaoSobra.DEVOLVER ? "receber de volta."
+                    : "deixar para o ano que vem."));
+        } catch (com.natal.caixinha.comum.RegraException e) {
+            redirect.addFlashAttribute("erro", e.getMessage());
+        }
+        return "redirect:/c/" + token;
     }
 
     @GetMapping("/c/{token}")
@@ -88,6 +117,11 @@ public class PaginaPessoalController {
         model.addAttribute("resumo", caixinha.resumo());
         model.addAttribute("token", token);
         model.addAttribute("proximaEtapa", cronograma.proximaEtapa().orElse(null));
+        var contas = prestacao.visao();
+        if (contas.disponivel()) {
+            model.addAttribute("contas", contas);
+            model.addAttribute("sobraDaFamilia", prestacao.daFamilia(responsavel.getId()));
+        }
 
         boolean temPix = f.valorPix().signum() > 0 && recebedor.isPresent();
         model.addAttribute("semChave", f.valorPix().signum() > 0 && recebedor.isEmpty());
