@@ -65,6 +65,23 @@ public class Lancamento {
         return tipo.isEntrada() ? valor : valor.negate();
     }
 
+    /** Descrição da devolução da sobra (seção 3.7). */
+    public static final String SOBRA_DA_FESTA = "Sobra da festa";
+
+    /** Descrição do crédito para a caixinha do ano seguinte, lançado como devolução: "Crédito para 2028". */
+    public static String creditoPara(int ano) {
+        return "Crédito para " + ano;
+    }
+
+    /**
+     * Devolução da prestação de contas (sobra ou crédito para o ano seguinte). Não é dinheiro que a pessoa
+     * deixou de guardar: fica fora do guardado da situação e da conta das partes.
+     */
+    public boolean daSobraDaFesta() {
+        return tipo == TipoLancamento.DEVOLUCAO && descricao != null
+                && (descricao.equals(SOBRA_DA_FESTA) || descricao.matches("Crédito para \\d{4}"));
+    }
+
     public Long getId() { return id; }
     public TipoLancamento getTipo() { return tipo; }
     public Pessoa getPessoa() { return pessoa; }

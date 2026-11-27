@@ -91,7 +91,7 @@ public class FamiliaService {
             }
             BigDecimal cotaDaPessoa = CalculadoraCaixinha.cotaDaPessoa(cota.cota(), p.getPeso());
             List<Carne.Movimento> seus = movimentos.stream()
-                    .filter(l -> l.getPessoa().getId().equals(p.getId()))
+                    .filter(l -> l.getPessoa().getId().equals(p.getId()) && !l.daSobraDaFesta())
                     .map(l -> new Carne.Movimento(l.getData(), l.valorNoSaldo()))
                     .toList();
             BigDecimal guardado = seus.stream().map(Carne.Movimento::valor).reduce(ZERO, BigDecimal::add);

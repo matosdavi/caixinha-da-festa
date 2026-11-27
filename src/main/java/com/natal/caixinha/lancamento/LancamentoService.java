@@ -80,7 +80,10 @@ public class LancamentoService {
             categoria = d.categoria();
         }
 
-        if (tipo == TipoLancamento.DEVOLUCAO) {
+        // a parte da sobra pode passar do que a pessoa guardou (doações e rendimentos entram na sobra)
+        boolean daSobra = d.descricao() != null && (d.descricao().strip().equals(Lancamento.SOBRA_DA_FESTA)
+                || d.descricao().strip().matches("Crédito para \\d{4}"));
+        if (tipo == TipoLancamento.DEVOLUCAO && !daSobra) {
             BigDecimal guardado = guardadoDe(pessoa.getId());
             if (valor.compareTo(guardado) > 0) {
                 throw new RegraException("A devolução (R$ " + valor + ") é maior do que " + pessoa.getNome()

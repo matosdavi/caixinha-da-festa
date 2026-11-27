@@ -167,3 +167,7 @@
 .escolha-sobra button { width: 100%; }
 .contas .resumo dt { color: var(--papel-sutil); }
 .contas .resumo dd { color: var(--papel-texto); }
+/* no papel, os botões seguem o botão do PIX: fundo escuro e foco visível (o amarelo do tema some no papel) */
+.escolha-sobra .botao { background: #0F2A23; color: var(--papel); border: 0; }
+.escolha-sobra .botao-secundario { background: transparent; color: var(--papel-texto); border: 2px solid var(--papel-texto); }
+.escolha-sobra button:focus-visible { outline: 3px solid var(--papel-texto); outline-offset: 2px; }

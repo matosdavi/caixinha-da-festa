@@ -37,8 +37,6 @@ import java.util.Set;
 @Service
 public class PrestacaoService {
 
-    static final String SOBRA = "Sobra da festa";
-    static final String CREDITO = "Crédito para ";
     static final int DIAS_PARA_ESCOLHER = 7;
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -94,7 +92,7 @@ public class PrestacaoService {
         Map<Long, BigDecimal> guardado = new HashMap<>();
         Set<Long> lancados = new HashSet<>();
         for (Lancamento l : todos) {
-            boolean daSobra = daSobra(l);
+            boolean daSobra = l.daSobraDaFesta();
             switch (l.getTipo()) {
                 case DEPOSITO, CREDITO_ANO_ANTERIOR, RENDIMENTO, DOACAO -> entradas = entradas.add(l.getValor());
                 case GASTO -> {
@@ -189,8 +187,8 @@ public class PrestacaoService {
         if (l.parte().signum() <= 0) {
             throw new RegraException("Não há parte para lançar.");
         }
-        String descricao = l.efetiva() == OpcaoSobra.DEVOLVER ? SOBRA
-                : CREDITO + (caixinhas.configuracao().getMesFim().getYear() + 1);
+        String descricao = l.efetiva() == OpcaoSobra.DEVOLVER ? Lancamento.SOBRA_DA_FESTA
+                : Lancamento.creditoPara(caixinhas.configuracao().getMesFim().getYear() + 1);
         lancamentos.registrar(new DadosLancamento(TipoLancamento.DEVOLUCAO, pessoaId, l.parte(),
                 LocalDate.now(clock), descricao, null, null));
     }
@@ -219,11 +217,6 @@ public class PrestacaoService {
         OffsetDateTime agora = OffsetDateTime.now(clock);
         escolhas.findById(pessoaId).ifPresentOrElse(e -> e.mudar(opcao, agora),
                 () -> escolhas.save(new EscolhaSobra(pessoaId, opcao, agora)));
-    }
-
-    private static boolean daSobra(Lancamento l) {
-        return l.getTipo() == TipoLancamento.DEVOLUCAO && l.getDescricao() != null
-                && (l.getDescricao().startsWith(SOBRA) || l.getDescricao().startsWith(CREDITO));
     }
 
     private static boolean disponivel(LocalDate festa, LocalDate hoje) {

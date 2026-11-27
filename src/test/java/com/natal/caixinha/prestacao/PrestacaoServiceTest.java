@@ -162,4 +162,44 @@ class PrestacaoServiceTest {
         prestacao.definirEscolha(pessoa("Adulto 3").getId(), OpcaoSobra.DEVOLVER);
         assertEquals("Nome;Valor\nAdulto 2;345,34\n", prestacao.csvCreditos());
     }
+
+    @Autowired
+    com.natal.caixinha.caixinha.FamiliaService familias;
+    @Autowired
+    com.natal.caixinha.lembrete.LembreteService lembretes;
+
+    @Test
+    void depoisDeLancarAFamiliaContinuaEmDiaSemCobranca() {
+        relogio.para(LocalDate.of(2027, 12, 28));
+        Long a2 = pessoa("Adulto 2").getId();
+        prestacao.lancar(a2);
+        var f = familias.daFamilia(a2);
+        assertEquals(com.natal.caixinha.caixinha.FamiliaService.EstadoDoMes.PAGO, f.estado());
+        valor("0", f.valorPix());
+    }
+
+    @Test
+    void parteMaiorQueOGuardadoTambemSeLanca() {
+        relogio.para(LocalDate.of(2027, 11, 30));
+        lancamentos.registrar(new DadosLancamento(TipoLancamento.DOACAO, null, new BigDecimal("1500"),
+                LocalDate.of(2027, 11, 30), "Doação da vovó", null, null));
+        relogio.para(LocalDate.of(2027, 12, 28));
+        Visao v = prestacao.visao();
+        assertTrue(linha(v, "Adulto 2").parte().compareTo(new BigDecimal("1012")) > 0, "parte passa do guardado");
+        prestacao.lancar(pessoa("Adulto 2").getId());
+        prestacao.lancar(pessoa("Adulto 3").getId());
+        valor("0", prestacao.visao().saldo());
+    }
+
+    @Test
+    void devolucaoManualParecidaNaoContaComoDaSobra() {
+        relogio.para(LocalDate.of(2027, 11, 30));
+        lancamentos.registrar(new DadosLancamento(TipoLancamento.DEVOLUCAO, pessoa("Adulto 3").getId(),
+                new BigDecimal("6"), LocalDate.of(2027, 11, 30), "Crédito para a Maria (ajuste)", null, null));
+        relogio.para(LocalDate.of(2027, 12, 22));
+        Visao v = prestacao.visao();
+        valor("6", v.devolucoes());
+        valor("512", v.sobra());
+        assertFalse(linha(v, "Adulto 3").lancado());
+    }
 }

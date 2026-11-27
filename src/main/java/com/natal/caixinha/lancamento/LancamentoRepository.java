@@ -19,7 +19,10 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
     List<Object[]> totaisPorTipo();
 
     /** Totais por pessoa e tipo: cada linha é [Long pessoaId, TipoLancamento, BigDecimal]. */
-    @Query("select l.pessoa.id, l.tipo, sum(l.valor) from Lancamento l where l.pessoa is not null group by l.pessoa.id, l.tipo")
+    @Query("select l.pessoa.id, l.tipo, sum(l.valor) from Lancamento l where l.pessoa is not null"
+            + " and not (l.tipo = com.natal.caixinha.lancamento.TipoLancamento.DEVOLUCAO and l.descricao is not null"
+            + " and (l.descricao = 'Sobra da festa' or l.descricao like 'Crédito para ____'))"
+            + " group by l.pessoa.id, l.tipo")
     List<Object[]> totaisPorPessoa();
 
     /** Lançamentos que mexem no guardado (depósito, crédito, devolução) dessas pessoas, do mais antigo ao mais novo. */
