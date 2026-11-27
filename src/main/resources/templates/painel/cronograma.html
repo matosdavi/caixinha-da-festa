@@ -31,6 +31,8 @@
                 </div>
                 <strong th:text="${e.titulo}">Procurar o lugar</strong>
                 <span class="pequeno" th:text="${e.detalhe}">3 opções…</span>
+                <a class="pequeno" th:if="${e.detalhe == 'calcular o desconto de novembro'}"
+                   th:href="@{/painel/desconto-novembro}">Calcular o desconto de novembro 🎁</a>
 
                 <div th:if="${e.reserva}" class="verificacao">
                     <p class="aviso erro" th:if="${visao.semAluguel}">

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeca('Desconto de novembro · Caixinha da Festa')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('cronograma')}"></header>
+<main class="conteudo">
+    <h1>Desconto de novembro 🎁</h1>
+    <p class="sutil">O presente do amigo secreto: metade da sobra prevista vira desconto no último depósito, e a outra
+        metade fica de reserva. Dá para confirmar, recalcular ou desfazer durante outubro.</p>
+
+    <div th:replace="~{fragmentos :: avisos}"></div>
+
+    <p class="aviso" th:if="${p.confirmado != null}"
+       th:text="'Desconto confirmado: ' + ${@fmt.reais(p.confirmado)} + ' por cota inteira.'">Desconto confirmado.</p>
+
+    <section class="cartao">
+        <h2>Prévia</h2>
+        <dl class="resumo">
+            <dt>Já guardado</dt>
+            <dd th:text="${@fmt.reais(p.guardado)}">R$ 0,00</dd>
+            <dt>Rendimentos e doações</dt>
+            <dd th:text="${@fmt.reais(p.rendimentos.add(p.doacoes))}">R$ 0,00</dd>
+            <dt>Ainda vai entrar (até novembro)</dt>
+            <dd th:text="${@fmt.reais(p.falta)}">R$ 11.638,00</dd>
+            <dt>Arrecadação prevista</dt>
+            <dd th:text="${@fmt.reais(p.arrecadacaoPrevista)}">R$ 11.638,00</dd>
+            <dt>Gastos previstos</dt>
+            <dd th:text="'− ' + ${@fmt.reais(p.gastosPrevistos)}">− R$ 10.400,00</dd>
+            <dt>Sobra prevista</dt>
+            <dd><strong th:text="${@fmt.reais(p.sobra)}">R$ 1.238,00</strong></dd>
+        </dl>
+        <p class="ajuda">Os gastos usam o valor real de cada item do orçamento quando ele já existe.</p>
+    </section>
+
+    <section class="cartao" th:if="${p.descontoPorPeso.signum() > 0}">
+        <h2>Desconto</h2>
+        <p class="numero-grande" th:text="${@fmt.reais(p.descontoPorPeso)} + ' por cota inteira'">R$ 53,00 por cota inteira</p>
+        <p th:text="'Para meia cota: ' + ${@fmt.reais(meia)} + '. O novembro de cada pessoa fica com a cota menos o desconto, nunca abaixo de zero.'">meia cota</p>
+        <p class="sutil" th:text="'Reserva que fica na caixinha: ' + ${@fmt.reais(p.reserva)} + '.'">Reserva</p>
+    </section>
+
+    <p class="aviso erro" th:if="${p.motivo != null}" th:text="${p.motivo}">O desconto de novembro se confirma em outubro.</p>
+
+    <div class="acoes">
+        <form th:if="${p.podeConfirmar}" method="post" th:action="@{/painel/desconto-novembro}"
+              th:attr="data-confirmar='Confirmar o desconto de ' + ${@fmt.reais(p.descontoPorPeso)} + ' por cota inteira em novembro?'">
+            <button type="submit" class="botao" th:text="${p.confirmado != null} ? 'Confirmar desconto recalculado' : 'Confirmar desconto'">Confirmar desconto</button>
+        </form>
+        <form th:if="${p.confirmado != null && p.podeConfirmar}" method="post" th:action="@{/painel/desconto-novembro/desfazer}"
+              data-confirmar="Desfazer o desconto de novembro? O novembro volta para a cota cheia.">
+            <button type="submit" class="botao-link">Desfazer</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>
