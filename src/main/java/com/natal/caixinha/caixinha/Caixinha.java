@@ -53,6 +53,11 @@ public class Caixinha {
         // exigido pelo JPA
     }
 
+    /** Desconto de novembro por peso (seção 3.4); nulo = sem desconto. As regras de quando pode ficam no serviço. */
+    void definirDescontoNovembro(BigDecimal descontoPorPeso) {
+        this.descontoNovembroPorPeso = descontoPorPeso;
+    }
+
     /** Fixa a cota base. Depois disso ela não muda mais (seção 3.1). */
     void fixarCota(BigDecimal cota) {
         if (cotaBase != null) {

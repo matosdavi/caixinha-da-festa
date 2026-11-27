@@ -93,8 +93,7 @@ public class FamiliaService {
                     .map(l -> new Carne.Movimento(l.getData(), l.valorNoSaldo()))
                     .toList();
             BigDecimal guardado = seus.stream().map(Carne.Movimento::valor).reduce(ZERO, BigDecimal::add);
-            List<BigDecimal> valores = CalculadoraCaixinha.valoresDosMeses(cotaDaPessoa, p.getAcrescimo(),
-                    p.getAcrescimoDesde(), c.getMesInicio(), c.getMesFim());
+            List<BigDecimal> valores = CaixinhaService.valoresDaPessoa(c, cota.cota(), p);
             Situacao s = CalculadoraCaixinha.situacao(valores, guardado, hoje, c.getMesInicio(), c.getMesFim());
             pagantes.add(new Membro(p, s));
             doCarne.add(new Carne.Membro(cotaDaPessoa, seus, valores));

@@ -125,9 +125,7 @@ public class CaixinhaService {
             if (!p.isPagante()) {
                 continue;
             }
-            Situacao s = CalculadoraCaixinha.situacao(
-                    CalculadoraCaixinha.valoresDosMeses(CalculadoraCaixinha.cotaDaPessoa(cota.cota(), p.getPeso()),
-                            p.getAcrescimo(), p.getAcrescimoDesde(), c.getMesInicio(), c.getMesFim()),
+            Situacao s = CalculadoraCaixinha.situacao(valoresDaPessoa(c, cota.cota(), p),
                     guardadoPorPessoa.getOrDefault(p.getId(), ZERO), hoje, c.getMesInicio(), c.getMesFim());
             situacoes.add(new SituacaoPessoa(p, s));
             if (s.emDia()) {
@@ -202,6 +200,18 @@ public class CaixinhaService {
         }
         c.fixarCota(cota.cotaEstimada());
         return cota.cotaEstimada();
+    }
+
+    /**
+     * Valor de cada mês da pessoa: cota × peso, mais a parcela do acréscimo (3.5), com o desconto de novembro
+     * no último mês (3.4) quando confirmado.
+     */
+    static java.util.List<BigDecimal> valoresDaPessoa(Caixinha c, BigDecimal cotaBase, Pessoa p) {
+        BigDecimal cotaDaPessoa = CalculadoraCaixinha.cotaDaPessoa(cotaBase, p.getPeso());
+        return CalculadoraCaixinha.comDesconto(
+                CalculadoraCaixinha.valoresDosMeses(cotaDaPessoa, p.getAcrescimo(), p.getAcrescimoDesde(),
+                        c.getMesInicio(), c.getMesFim()),
+                cotaDaPessoa, c.getDescontoNovembroPorPeso(), p.getPeso());
     }
 
     /** guardado de cada pessoa = depósitos + crédito do ano anterior − devoluções. */
