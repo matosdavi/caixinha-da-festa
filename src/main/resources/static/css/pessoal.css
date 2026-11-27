@@ -165,3 +165,5 @@
 .contas h2 { margin-top: 0; }
 .escolha-sobra { display: grid; gap: 8px; margin-top: 8px; }
 .escolha-sobra button { width: 100%; }
+.contas .resumo dt { color: var(--papel-sutil); }
+.contas .resumo dd { color: var(--papel-texto); }
