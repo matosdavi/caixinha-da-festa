@@ -85,4 +85,11 @@ class MensagensLembreteTest {
         assertTrue(texto.endsWith("no seu link pessoal.\n📅 Próxima etapa: *procurar o lugar* (maio)"), texto);
     }
 
+    @Test
+    void novembroComDescontoDizOValorJaDescontado() {
+        String texto = MensagensLembrete.grupo(new Grupo(YearMonth.of(2027, 10), NOV, r("9000.00"), r("11440.00"), 78,
+                12, 12, r("92.00"), null, null, r("53.00")));
+        assertTrue(texto.contains("*Novembro* começou: a cota é R$ 39,00 por pessoa, já com R$ 53,00 de desconto "
+                + "(presente do amigo secreto 🎁)."), texto);
+    }
 }

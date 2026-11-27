@@ -81,6 +81,8 @@ public class FamiliaService {
         BigDecimal cotaFamilia = ZERO;
         BigDecimal valorPix = ZERO;
         BigDecimal acrescimo = ZERO;
+        // "sem valor" olha a caixinha inteira, não o mês: um novembro zerado pelo desconto não apaga a cobrança
+        BigDecimal totalFamilia = ZERO;
         boolean todosEmDia = true;
         boolean todosPagaramOMes = true;
         for (Pessoa p : todos) {
@@ -98,6 +100,7 @@ public class FamiliaService {
             pagantes.add(new Membro(p, s));
             doCarne.add(new Carne.Membro(cotaDaPessoa, seus, valores));
             cotaFamilia = cotaFamilia.add(s.cota());
+            totalFamilia = totalFamilia.add(valores.stream().reduce(ZERO, BigDecimal::add));
             if (p.getAcrescimo() != null) {
                 acrescimo = acrescimo.add(p.getAcrescimo());
             }
@@ -108,7 +111,7 @@ public class FamiliaService {
         cotaFamilia = CalculadoraCaixinha.dinheiro(cotaFamilia);
 
         EstadoDoMes estado;
-        if (cotaFamilia.signum() <= 0) {
+        if (totalFamilia.signum() <= 0) {
             estado = EstadoDoMes.SEM_VALOR;
         } else if (!todosEmDia) {
             estado = EstadoDoMes.ATRASADO;
@@ -123,7 +126,7 @@ public class FamiliaService {
 
         YearMonth mesAtual = CalculadoraCaixinha.mesAtual(hoje, c.getMesInicio(), c.getMesFim());
         int numeroMes = (int) c.getMesInicio().until(mesAtual, java.time.temporal.ChronoUnit.MONTHS) + 1;
-        List<Carne.Talao> carne = Carne.montar(cotaFamilia.signum() > 0 ? doCarne : List.of(),
+        List<Carne.Talao> carne = Carne.montar(totalFamilia.signum() > 0 ? doCarne : List.of(),
                 c.getMesInicio(), c.getMesFim());
         List<Lancamento> extrato = new ArrayList<>(movimentos);
         Collections.reverse(extrato);

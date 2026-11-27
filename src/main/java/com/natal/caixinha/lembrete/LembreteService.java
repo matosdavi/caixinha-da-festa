@@ -104,7 +104,8 @@ public class LembreteService {
         return MensagensLembrete.grupo(new MensagensLembrete.Grupo(fechado, novo, r.arrecadado(), r.cota().meta(),
                 r.percentual(), r.emDia(), r.pagantes(), r.cota().cota(),
                 proxima.map(com.natal.caixinha.cronograma.Cronograma.Etapa::frase).orElse(null),
-                proxima.map(com.natal.caixinha.cronograma.Cronograma.Etapa::mes).orElse(null)));
+                proxima.map(com.natal.caixinha.cronograma.Cronograma.Etapa::mes).orElse(null),
+                c.getMesFim().equals(novo) ? c.getDescontoNovembroPorPeso() : null));
     }
 
     // ------------------------------------------------------------ individual

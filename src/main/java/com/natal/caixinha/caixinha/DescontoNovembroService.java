@@ -24,11 +24,12 @@ public class DescontoNovembroService {
      * @param reserva             a parte da sobra que fica na caixinha
      * @param confirmado          desconto por peso já gravado (nulo se não há)
      * @param motivo              por que não dá para confirmar agora (nulo se dá)
+     * @param podeDesfazer        há desconto confirmado e ainda é outubro (mesmo se a sobra recalculada sumiu)
      */
     public record Previa(BigDecimal guardado, BigDecimal rendimentos, BigDecimal doacoes, BigDecimal falta,
                          BigDecimal arrecadacaoPrevista, BigDecimal gastosPrevistos, BigDecimal sobra,
                          BigDecimal descontoPorPeso, BigDecimal reserva, BigDecimal somaPesos,
-                         BigDecimal confirmado, boolean podeConfirmar, String motivo) {
+                         BigDecimal confirmado, boolean podeConfirmar, String motivo, boolean podeDesfazer) {
     }
 
     private final CaixinhaRepository caixinhas;
@@ -70,7 +71,8 @@ public class DescontoNovembroService {
         String motivo = motivo(c, sobra);
         return new Previa(r.guardadoTotal(), r.rendimentos(), r.doacoes(), falta,
                 CalculadoraCaixinha.dinheiro(arrecadacao), gastos, sobra, desconto, reserva, somaPesos,
-                c.getDescontoNovembroPorPeso(), motivo == null, motivo);
+                c.getDescontoNovembroPorPeso(), motivo == null, motivo,
+                c.getDescontoNovembroPorPeso() != null && foraDoMes(c) == null);
     }
 
     @Transactional

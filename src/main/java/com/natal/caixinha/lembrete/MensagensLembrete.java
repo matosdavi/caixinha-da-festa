@@ -19,14 +19,22 @@ public final class MensagensLembrete {
      * @param mesFechado mês que acabou de fechar; nulo no primeiro mês da caixinha
      * @param mesNovo    mês que começou; nulo no mês seguinte ao último
      * @param proximaEtapa etapa do cronograma no meio da frase ("procurar o lugar"); nula se não houver
+     * @param descontoNoMes desconto de novembro por cota inteira, só no mês em que vale (nulo nos outros)
      */
     public record Grupo(YearMonth mesFechado, YearMonth mesNovo, BigDecimal arrecadado, BigDecimal meta,
                         int percentual, int emDia, int pagantes, BigDecimal cota, String proximaEtapa,
-                        YearMonth mesProximaEtapa) {
+                        YearMonth mesProximaEtapa, BigDecimal descontoNoMes) {
 
         public Grupo(YearMonth mesFechado, YearMonth mesNovo, BigDecimal arrecadado, BigDecimal meta,
                      int percentual, int emDia, int pagantes, BigDecimal cota) {
-            this(mesFechado, mesNovo, arrecadado, meta, percentual, emDia, pagantes, cota, null, null);
+            this(mesFechado, mesNovo, arrecadado, meta, percentual, emDia, pagantes, cota, null, null, null);
+        }
+
+        public Grupo(YearMonth mesFechado, YearMonth mesNovo, BigDecimal arrecadado, BigDecimal meta,
+                     int percentual, int emDia, int pagantes, BigDecimal cota, String proximaEtapa,
+                     YearMonth mesProximaEtapa) {
+            this(mesFechado, mesNovo, arrecadado, meta, percentual, emDia, pagantes, cota, proximaEtapa,
+                    mesProximaEtapa, null);
         }
     }
 
@@ -59,7 +67,9 @@ public final class MensagensLembrete {
             texto.append(temCota ? ": " + frasesDaCota(g.cota()) : ".");
         } else {
             texto.append("\n*").append(maiuscula(mes(g.mesNovo()))).append("* começou");
-            texto.append(temCota ? ": " + frasesDaCota(g.cota()) : ".");
+            boolean comDesconto = temCota && g.descontoNoMes() != null && g.descontoNoMes().signum() > 0;
+            texto.append(comDesconto ? ": " + frasesDaCotaComDesconto(g.cota(), g.descontoNoMes())
+                    : temCota ? ": " + frasesDaCota(g.cota()) : ".");
         }
         if (g.proximaEtapa() != null && g.mesProximaEtapa() != null) {
             texto.append("\n📅 Próxima etapa: *").append(g.proximaEtapa()).append("* (")
@@ -83,6 +93,13 @@ public final class MensagensLembrete {
 
     private static String frasesDaCota(BigDecimal cota) {
         return "a cota é " + Dinheiro.formatar(cota) + " por pessoa. " + FAMILIA_E_PIX;
+    }
+
+    /** Novembro com o presente do amigo secreto: a cota já descontada (nunca negativa). */
+    private static String frasesDaCotaComDesconto(BigDecimal cota, BigDecimal desconto) {
+        BigDecimal liquida = cota.subtract(desconto.min(cota));
+        return "a cota é " + Dinheiro.formatar(liquida) + " por pessoa, já com " + Dinheiro.formatar(desconto.min(cota))
+                + " de desconto (presente do amigo secreto 🎁). " + FAMILIA_E_PIX;
     }
 
     private static String mes(YearMonth mes) {

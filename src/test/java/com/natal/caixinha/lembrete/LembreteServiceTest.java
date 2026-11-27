@@ -209,4 +209,19 @@ class LembreteServiceTest {
         assertThrows(RegraException.class, () -> lembretes.avisarIndividual(MARCO, adulto, BASE));
         assertTrue(avisos.findAll().isEmpty());
     }
+
+    @Autowired
+    com.natal.caixinha.caixinha.CaixinhaService caixinhaService;
+    @Autowired
+    com.natal.caixinha.caixinha.DescontoNovembroService descontos;
+
+    @Test
+    void mensagemDoGrupoDeNovembroTrazODesconto() {
+        caixinhaService.fixarCota();
+        relogio.para(LocalDate.of(2027, 10, 15));
+        descontos.confirmar();
+        relogio.para(LocalDate.of(2027, 11, 1));
+        String texto = lembretes.cartaoGrupo(BASE).orElseThrow().texto();
+        assertTrue(texto.contains("a cota é R$ 39,00 por pessoa, já com R$ 53,00 de desconto"), texto);
+    }
 }

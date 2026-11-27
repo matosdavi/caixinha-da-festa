@@ -130,4 +130,30 @@ class DescontoNovembroServiceTest {
         assertEquals("Não há sobra prevista: sem desconto em novembro.", p.motivo());
         assertThrows(RegraException.class, () -> descontos.confirmar());
     }
+
+    @Test
+    void novembroZeradoNaoApagaACobrancaDeQuemEstaAtrasado() {
+        // aluguel saiu mais barato: sobra grande, desconto maior que a cota → novembro vale 0
+        orcamento.salvar(orcamento.listar().get(0).getId(),
+                new DadosItem(Categoria.ALUGUEL, "Casa", new BigDecimal("6000"), new BigDecimal("2000")));
+        assertTrue(descontos.previa().descontoPorPeso().compareTo(new BigDecimal("92")) >= 0);
+        descontos.confirmar();
+        relogio.para(LocalDate.of(2027, 11, 10));
+        var f = familias.daFamilia(pessoa("Adulto 2").getId());
+        assertEquals(FamiliaService.EstadoDoMes.ATRASADO, f.estado());
+        valor("920", f.valorPix()); // jan a out sem pagar; novembro sai de graça
+        assertEquals(11, f.carne().size());
+        valor("0", f.carne().get(10).valor());
+    }
+
+    @Test
+    void desfazerContinuaPossivelQuandoASobraSome() {
+        descontos.confirmar();
+        orcamento.salvar(null, new DadosItem(Categoria.OUTROS, "Extra", new BigDecimal("2000"), null));
+        Previa p = descontos.previa();
+        assertFalse(p.podeConfirmar());
+        assertTrue(p.podeDesfazer());
+        descontos.desfazer();
+        assertNull(caixinhas.configuracao().getDescontoNovembroPorPeso());
+    }
 }

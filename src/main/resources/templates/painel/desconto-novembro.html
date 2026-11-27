@@ -39,6 +39,9 @@
         <p class="sutil" th:text="'Reserva que fica na caixinha: ' + ${@fmt.reais(p.reserva)} + '.'">Reserva</p>
     </section>
 
+    <p class="aviso erro" th:if="${p.podeDesfazer && p.confirmado.compareTo(p.descontoPorPeso) > 0}"
+       th:text="'Atenção: o desconto confirmado (' + ${@fmt.reais(p.confirmado)} + ') é maior que o recalculado agora ('
+                + ${@fmt.reais(p.descontoPorPeso)} + '). Recalcule ou desfaça antes de novembro.'">Atenção</p>
     <p class="aviso erro" th:if="${p.motivo != null}" th:text="${p.motivo}">O desconto de novembro se confirma em outubro.</p>
 
     <div class="acoes">
@@ -46,7 +49,7 @@
               th:attr="data-confirmar='Confirmar o desconto de ' + ${@fmt.reais(p.descontoPorPeso)} + ' por cota inteira em novembro?'">
             <button type="submit" class="botao" th:text="${p.confirmado != null} ? 'Confirmar desconto recalculado' : 'Confirmar desconto'">Confirmar desconto</button>
         </form>
-        <form th:if="${p.confirmado != null && p.podeConfirmar}" method="post" th:action="@{/painel/desconto-novembro/desfazer}"
+        <form th:if="${p.podeDesfazer}" method="post" th:action="@{/painel/desconto-novembro/desfazer}"
               data-confirmar="Desfazer o desconto de novembro? O novembro volta para a cota cheia.">
             <button type="submit" class="botao-link">Desfazer</button>
         </form>
