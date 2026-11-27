@@ -130,6 +130,32 @@ public final class CalculadoraCaixinha {
         return valores;
     }
 
+    // ---------------------------------------------------------------- 3.4 desconto de novembro
+
+    /** Metade da sobra prevista dividida pela soma dos pesos, para baixo em reais inteiros; nunca negativo. */
+    public static BigDecimal descontoPorPeso(BigDecimal sobraPrevista, BigDecimal somaPesos) {
+        if (sobraPrevista == null || sobraPrevista.signum() <= 0 || somaPesos == null || somaPesos.signum() <= 0) {
+            return BigDecimal.ZERO.setScale(2);
+        }
+        return sobraPrevista.divide(BigDecimal.valueOf(2).multiply(somaPesos), 0, RoundingMode.FLOOR).setScale(2);
+    }
+
+    /**
+     * O último mês com o desconto: sai {@code min(cota, desconto × peso)}, então a parcela do acréscimo continua
+     * e o valor nunca fica negativo. Sem desconto, devolve a mesma lista.
+     */
+    public static List<BigDecimal> comDesconto(List<BigDecimal> valores, BigDecimal cotaDaPessoa,
+                                               BigDecimal descontoPorPeso, BigDecimal peso) {
+        if (descontoPorPeso == null || descontoPorPeso.signum() <= 0 || valores.isEmpty()) {
+            return valores;
+        }
+        BigDecimal desconto = dinheiro(descontoPorPeso.multiply(peso)).min(dinheiro(cotaDaPessoa));
+        List<BigDecimal> com = new ArrayList<>(valores);
+        int ultimo = com.size() - 1;
+        com.set(ultimo, dinheiro(com.get(ultimo).subtract(desconto).max(BigDecimal.ZERO)));
+        return com;
+    }
+
     /** Situação de uma pessoa em "hoje", com o valor de cada mês (ver {@link #valoresDosMeses}). */
     public static Situacao situacao(List<BigDecimal> valoresDosMeses, BigDecimal guardado, LocalDate hoje,
                                     YearMonth mesInicio, YearMonth mesFim) {

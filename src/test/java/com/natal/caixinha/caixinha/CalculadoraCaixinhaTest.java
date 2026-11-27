@@ -324,4 +324,52 @@ class CalculadoraCaixinhaTest {
                     situacao(valoresDosMeses(COTA, null, null, JAN, NOV), r("100.00"), hoje, JAN, NOV));
         }
     }
+
+    @Nested
+    class DescontoDeNovembro {
+
+        static final BigDecimal COTA = new BigDecimal("92.00");
+
+        @Test
+        void metadeDaSobraDivididaPelosPesosEmReaisInteiros() {
+            assertDinheiro("53", descontoPorPeso(r("1238.00"), r("11.5")));
+            assertDinheiro("49", descontoPorPeso(r("1149.00"), r("11.5")));
+            assertDinheiro("0", descontoPorPeso(r("-10.00"), r("11.5")));
+            assertDinheiro("0", descontoPorPeso(r("1000.00"), BigDecimal.ZERO));
+        }
+
+        @Test
+        void descontoSaiDoUltimoMes() {
+            List<BigDecimal> v = comDesconto(valoresDosMeses(COTA, null, null, JAN, NOV), COTA, r("50"), BigDecimal.ONE);
+            assertDinheiro("42.00", v.get(10));
+            assertDinheiro("92.00", v.get(9));
+        }
+
+        @Test
+        void meiaCotaTemMeioDesconto() {
+            BigDecimal meia = new BigDecimal("46.00");
+            List<BigDecimal> v = comDesconto(valoresDosMeses(meia, null, null, JAN, NOV), meia, r("50"), r("0.5"));
+            assertDinheiro("21.00", v.get(10));
+        }
+
+        @Test
+        void novembroNuncaFicaNegativo() {
+            List<BigDecimal> v = comDesconto(valoresDosMeses(COTA, null, null, JAN, NOV), COTA, r("100"), BigDecimal.ONE);
+            assertDinheiro("0.00", v.get(10));
+        }
+
+        @Test
+        void parcelaDoAcrescimoContinua() {
+            List<BigDecimal> com = valoresDosMeses(COTA, r("300"), YearMonth.of(2027, 7), JAN, NOV);
+            assertDinheiro("102.00", comDesconto(com, COTA, r("50"), BigDecimal.ONE).get(10));
+            assertDinheiro("60.00", comDesconto(com, COTA, r("100"), BigDecimal.ONE).get(10));
+        }
+
+        @Test
+        void semDescontoAListaNaoMuda() {
+            List<BigDecimal> v = valoresDosMeses(COTA, null, null, JAN, NOV);
+            assertEquals(v, comDesconto(v, COTA, null, BigDecimal.ONE));
+            assertEquals(v, comDesconto(v, COTA, BigDecimal.ZERO, BigDecimal.ONE));
+        }
+    }
 }
